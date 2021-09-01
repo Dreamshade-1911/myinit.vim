@@ -36,12 +36,13 @@ set wildmode=longest,list
 set timeoutlen=500
 set scrolloff=20
 set number
+set relativenumber
 set noswapfile
 set mouse=a
 set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
-set autochdir
+set nohlsearch
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
    autocmd!
@@ -72,6 +73,7 @@ imap Ç <C-o>
 nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
+nnoremap <silent> <Leader>p :cd %:h<CR>
 
 " OS Copy buffer
 nnoremap <silent> <Leader>c "*y
