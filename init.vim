@@ -41,6 +41,7 @@ set mouse=a
 set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
+set autochdir
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
    autocmd!
@@ -48,11 +49,11 @@ augroup DetectIndent
 augroup END
 
 " Setup file searching
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,.vscode,.vs,node_modules,bin,bin_client,bin_server,build
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build
 lua << EOF
 require('telescope').setup{
    defaults = {
-      file_ignore_patterns = { "node_modules", ".git", "tmp", ".tmp" };
+      file_ignore_patterns = { "node_modules", ".git", "tmp", ".tmp", "*.obj", "*.exe", ".pdb", "bin", "bin_client", "bin_server", "build" };
    }
 }
 EOF
@@ -96,3 +97,6 @@ hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
+" Change a few colors on the theme
+:hi Comment guifg=#258661
+:hi String guifg=#2EB8A6
