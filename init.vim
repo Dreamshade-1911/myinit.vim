@@ -1,4 +1,4 @@
-   " Plugins will be downloaded under the specified directory.
+" Plugins will be downloaded under the specified directory.
 call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
 
 " Declare the list of plugins.
@@ -11,7 +11,6 @@ Plug 'tpope/vim-fugitive'
 Plug 'junegunn/vim-easy-align'
 Plug 'raimondi/delimitmate'
 Plug 'mhinz/vim-startify'
-Plug 'sunjon/shade.nvim'
 Plug 'airblade/vim-gitgutter'
 Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
@@ -48,32 +47,38 @@ augroup DetectIndent
    autocmd!
    autocmd BufReadPost *  DetectIndent
 augroup END
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist
 
-" Setup file searching
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build
-lua << EOF
-require('telescope').setup{
-   defaults = {
-      file_ignore_patterns = { "node_modules", ".git", "tmp", ".tmp", "*.obj", "*.exe", ".pdb", "bin", "bin_client", "bin_server", "build" };
-   }
-}
-EOF
+" Setup custom build script
+function! CustomBuildCommand()
+   if executable('build')
+      set makeprg=build
+   endif
+endfunction
+
+augroup CustomBuildScript
+   autocmd!
+   autocmd DirChanged * call CustomBuildCommand()
+augroup END
+call CustomBuildCommand()
 
 " General remaps
-nnoremap <Space> <Nop>
-let mapleader = "\<Space>"
-nnoremap <silent> <Leader><Leader> :source $myvimrc<CR>
-nnoremap <silent> <Leader>' :e $myvimrc<CR>
 map ç <C-c>
 nmap ç a
 imap ç <Esc>
 imap Ç <C-o>
 
 " Leader keybinds
+nnoremap <Space> <Nop>
+let mapleader = "\<Space>"
+nnoremap <silent> <Leader><Leader> :source $myvimrc<CR>
+nnoremap <silent> <Leader>' :e $myvimrc<CR>
 nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
-nnoremap <silent> <Leader>p :cd %:h<CR>
+nnoremap <silent> <Leader>p :e %:h<CR>
+nnoremap <silent> <Leader>P :cd %:h<CR>
+nnoremap <silent> <Leader>e :make\|redraw\|botright cwindow<CR>
 
 " OS Copy buffer
 nnoremap <silent> <Leader>c "*y
@@ -102,3 +107,12 @@ hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 " Change a few colors on the theme
 :hi Comment guifg=#258661
 :hi String guifg=#2EB8A6
+
+" Setup lua plugins configs
+lua << EOF
+require('telescope').setup{
+   defaults = {
+      file_ignore_patterns = { "node_modules", ".git", "tmp", ".tmp", "*.obj", "*.exe", ".pdb", "bin", "bin_client", "bin_server", "build", "dist" };
+   }
+}
+EOF
