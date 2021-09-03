@@ -27,7 +27,6 @@ let g:airline_section_z = airline#section#create(['windowswap', '%3p%% ', 'linen
 
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set guicursor+=o-i-r-c-ci-cr:-ver25
-set cursorline
 set showmatch
 set expandtab
 set autoindent
@@ -118,5 +117,16 @@ hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 " hi String guifg=#2EB8A6
 
 " Trick for loading last edited file
-autocmd VimEnter * exe 'normal g`0'
+function! OpenLastEditedFile(timer)
+    exe 'normal g`0'
+endfunction
+
+function! OpenLastEditedFileTimer()
+    let lastFileTimer = timer_start(1, 'OpenLastEditedFile')
+endfunction
+
+augroup OpenLastFile
+    autocmd!
+    autocmd VimEnter * call OpenLastEditedFileTimer()
+augroup END
 
