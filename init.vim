@@ -12,8 +12,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'airblade/vim-gitgutter'
 Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -43,12 +41,14 @@ set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
 set scroll=22
+set fileformats=dos
+set wildmenu
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
    autocmd!
    autocmd BufReadPost *  DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
 
 augroup CursorLineOnlyInActiveWindow
   autocmd!
@@ -87,21 +87,18 @@ nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
 nnoremap <silent> <Leader>p :e %:h<CR>
-nnoremap <silent> <Leader>P :cd %:h<CR>
+nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>e :make\|redraw\|botright cwindow<CR>
 nnoremap <silent> <Leader>E :copen<CR>
 nnoremap <silent> <Leader>w :w<CR>
+nnoremap <Leader>m '
+nnoremap <Leader>f :e ./**/*
+nnoremap <Leader>F :vs ./**/*
 
 " OS Copy buffer
 nnoremap <silent> <Leader>c "*y
 nnoremap <silent> <Leader>v "*p
 vnoremap <silent> <Leader>c "*y
-
-" Telescope
-nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<CR>
-nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<CR>
-nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<CR>
-nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<CR>
 
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
@@ -120,12 +117,6 @@ hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 " hi Comment guifg=#258661
 " hi String guifg=#2EB8A6
 
-" Setup lua plugins configs
-lua << EOF
-require('telescope').setup{
-   defaults = {
-      file_ignore_patterns = { "node_modules", ".git", "tmp", ".tmp", "*.obj", "*.exe", ".pdb", "bin", "bin_client", "bin_server", "build", "dist" };
-   }
-}
-EOF
+" Trick for loading last edited file
+autocmd VimEnter * exe 'normal g`0'
 
