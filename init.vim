@@ -9,8 +9,6 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/vim-easy-align'
-Plug 'raimondi/delimitmate'
-Plug 'mhinz/vim-startify'
 Plug 'airblade/vim-gitgutter'
 Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
@@ -27,6 +25,10 @@ hi NonText guibg=NONE ctermbg=NONE
 let g:airline_powerline_fonts = 1
 let g:airline_section_z = airline#section#create(['windowswap', '%3p%% ', 'linenr', ':%3v'])
 
+" exec "source " . stdpath('config') . "/cppsyntax.vim"
+
+set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
+set guicursor+=o-i-r-c-ci-cr:-ver25
 set cursorline
 set showmatch
 set expandtab
@@ -35,13 +37,12 @@ set wildmode=longest,list
 set timeoutlen=500
 set scrolloff=20
 set number
-set relativenumber
 set noswapfile
 set mouse=a
 set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
-set nohlsearch
+set scroll=22
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
    autocmd!
@@ -49,10 +50,16 @@ augroup DetectIndent
 augroup END
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist
 
+augroup CursorLineOnlyInActiveWindow
+  autocmd!
+  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  autocmd WinLeave * setlocal nocursorline
+augroup END
+
 " Setup custom build script
 function! CustomBuildCommand()
-   if executable('build')
-      set makeprg=build
+   if executable('build.bat')
+      set makeprg=build.bat
    endif
 endfunction
 
@@ -68,6 +75,9 @@ nmap ç a
 imap ç <Esc>
 imap Ç <C-o>
 
+" Clear last search highlighting with Ctrl+l and redraw
+nnoremap <silent> <C-l> :let @/ = ""\|:mod<CR>
+
 " Leader keybinds
 nnoremap <Space> <Nop>
 let mapleader = "\<Space>"
@@ -79,6 +89,8 @@ nnoremap <silent> <Leader>q <C-w>c
 nnoremap <silent> <Leader>p :e %:h<CR>
 nnoremap <silent> <Leader>P :cd %:h<CR>
 nnoremap <silent> <Leader>e :make\|redraw\|botright cwindow<CR>
+nnoremap <silent> <Leader>E :copen<CR>
+nnoremap <silent> <Leader>w :w<CR>
 
 " OS Copy buffer
 nnoremap <silent> <Leader>c "*y
@@ -105,8 +117,8 @@ hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
 " Change a few colors on the theme
-:hi Comment guifg=#258661
-:hi String guifg=#2EB8A6
+" hi Comment guifg=#258661
+" hi String guifg=#2EB8A6
 
 " Setup lua plugins configs
 lua << EOF
@@ -116,3 +128,4 @@ require('telescope').setup{
    }
 }
 EOF
+
