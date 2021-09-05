@@ -42,29 +42,30 @@ set splitright
 set scroll=22
 set fileformats=dos
 set wildmenu
+set clipboard=unnamed
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
-   autocmd!
-   autocmd BufReadPost *  DetectIndent
+     autocmd!
+     autocmd BufReadPost *  DetectIndent
 augroup END
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
 
 augroup CursorLineOnlyInActiveWindow
-  autocmd!
-  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  autocmd WinLeave * setlocal nocursorline
+    autocmd!
+    autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+    autocmd WinLeave * setlocal nocursorline
 augroup END
 
 " Setup custom build script
 function! CustomBuildCommand()
-   if executable('build.bat')
-      set makeprg=build.bat
-   endif
+    if executable('build.bat')
+        set makeprg=build.bat
+    endif
 endfunction
 
 augroup CustomBuildScript
-   autocmd!
-   autocmd DirChanged * call CustomBuildCommand()
+    autocmd!
+    autocmd DirChanged * call CustomBuildCommand()
 augroup END
 call CustomBuildCommand()
 
@@ -82,23 +83,39 @@ nnoremap <Space> <Nop>
 let mapleader = "\<Space>"
 nnoremap <silent> <Leader><Leader> :source $myvimrc<CR>
 nnoremap <silent> <Leader>' :e $myvimrc<CR>
+nnoremap <silent> <Leader>" :vs $myvimrc<CR>
 nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
 nnoremap <silent> <Leader>p :e %:h<CR>
 nnoremap <silent> <Leader>P :vs %:h<CR>
-nnoremap <silent> <Leader>e :make\|redraw\|botright cwindow<CR>
-nnoremap <silent> <Leader>E :copen<CR>
+nnoremap <silent> <Leader>e :make!\|redraw\|botright cwindow<CR>
 nnoremap <silent> <Leader>w :w<CR>
 nnoremap <Leader>m '
 nnoremap <Leader>f :e ./**/*
 nnoremap <Leader>F :vs ./**/*
+nnoremap <silent> <F8> :cnext<CR>
+nnoremap <silent> <F7> :cprevious<CR>
+nnoremap <silent> <F4> @:<CR>
 
-" OS Copy buffer
-nnoremap <silent> <Leader>c "*y
-nnoremap <silent> <Leader>v "*p
-vnoremap <silent> <Leader>c "*y
+function! ToggleQuickFix()
+    if empty(filter(getwininfo(), 'v:val.quickfix'))
+        botright cwindow
+    else
+        cclose
+    endif
+endfunction
+nnoremap <silent> <Leader>E :call ToggleQuickFix()<CR>
 
+nnoremap <Leader>h <C-w>h
+nnoremap <Leader>j <C-w>j
+nnoremap <Leader>k <C-w>k
+nnoremap <Leader>l <C-w>l
+
+nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
+nmap <Leader>gu <Plug>(GitGutterUndoHunk)
+nmap <Leader>gs <Plug>(GitGutterStageHunk)
+xmap <Leader>gs <Plug>(GitGutterStageHunk)
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
@@ -111,22 +128,4 @@ hi! link GitGutterAddLineNr DiffAdd
 hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
-
-" Change a few colors on the theme
-" hi Comment guifg=#258661
-" hi String guifg=#2EB8A6
-
-" Trick for loading last edited file
-function! OpenLastEditedFile(timer)
-    exe 'normal g`0'
-endfunction
-
-function! OpenLastEditedFileTimer()
-    let lastFileTimer = timer_start(1, 'OpenLastEditedFile')
-endfunction
-
-augroup OpenLastFile
-    autocmd!
-    autocmd VimEnter * call OpenLastEditedFileTimer()
-augroup END
 
