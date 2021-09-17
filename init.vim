@@ -17,7 +17,6 @@ Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'lukas-reineke/indent-blankline.nvim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -147,7 +146,16 @@ hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 " Setup CoC
 let g:coc_config_home = stdpath('config')
 nnoremap <silent> <Leader>u :call CocActionAsync('doHover')<CR>
-inoremap <silent><expr> <S-Tab> coc#refresh()
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)

@@ -3,7 +3,7 @@ function! OverrideColorSchemes()
     hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE
     hi CursorLineNr guibg=#BCC7DA guifg=#101010 gui=bold ctermfg=NONE
 
-    hi Normal guifg=#DBCAA4 guibg=#1B1E24 ctermbg=Black
+    hi Normal guifg=#DBCAA4 guibg=NONE ctermbg=NONE
     hi Delimiter guifg=#DBCAA4
     hi Operator guifg=#DBCAA4
     hi vimMapRhs guifg=#DBCAA4
@@ -20,7 +20,7 @@ function! OverrideColorSchemes()
     hi typescriptInterfaceName guifg=#DBCAA4
     hi NonText guibg=NONE ctermbg=NONE
 
-    hi Comment guifg=#4ACE45
+    hi Comment guifg=#67B32E
 
     hi String guifg=#2EB8A6
     hi Character guifg=#2EB8A6
@@ -54,13 +54,20 @@ function! OverrideColorSchemes()
     hi CppModifier guifg=#FFFFFF
     hi Exception guifg=#FFFFFF
 
-    hi Todo guifg=#B03729 ctermfg=NONE
-
     hi Define guifg=#BCC7DA
     hi Include guifg=#BCC7DA
     hi PreProc guifg=#BCC7DA
     hi Function guifg=#BCC7DA
     hi typescriptGlobal guifg=#BCC7DA
+
+    call SetCustomSyntax()
+endfunction
+
+function! SetCustomSyntax()
+    " @ForThis: Setup notes like the one before <
+    hi Todo guifg=#E3B749 gui=underline
+    syn match myTodos /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
+    hi def link myTodos Todo
 endfunction
 
 augroup DreamshadeColorScheme
@@ -68,5 +75,6 @@ augroup DreamshadeColorScheme
     autocmd ColorScheme * call OverrideColorSchemes()
     autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
     autocmd WinLeave * setlocal nocursorline
+    autocmd Syntax * call SetCustomSyntax()
 augroup END
 
