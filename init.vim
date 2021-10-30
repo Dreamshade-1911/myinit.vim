@@ -79,6 +79,7 @@ nmap ç a
 nmap Ç ^
 imap ç <Esc>
 imap Ç <C-o>
+vmap Ç ^
 
 " Clear last search highlighting with Ctrl+l and redraw
 nnoremap <silent> <C-l> :let @/ = ""\|:mod<CR>
