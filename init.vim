@@ -56,7 +56,7 @@ augroup DetectIndent
      autocmd!
      autocmd BufReadPost *  DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,node_modules,bin,bin_client,bin_server,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
 
 " Setup custom build script
 function! CustomBuildCommand()
@@ -103,9 +103,8 @@ nnoremap <silent> <Leader>p :e %:h<CR>
 nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>e :make!\|redraw\|botright cwindow<CR>
 nnoremap <silent> <Leader>w :w<CR>
-nnoremap <Leader>m '
-nnoremap <Leader>f :e ./**/*
-nnoremap <Leader>F :vs ./**/*
+nnoremap <Leader>f :e **/
+nnoremap <Leader>F :vs **/
 nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F4> @:<CR>
