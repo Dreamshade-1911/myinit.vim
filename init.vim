@@ -98,7 +98,13 @@ augroup GrepQuickFix
     autocmd QuickFixCmdPost l* botright cwindow
 augroup END
 function! CustomGrep(str)
-    execute 'vimgrep /\C'.a:str.'/j **/*'
+    if isdirectory('src')
+        execute 'vimgrep /\C'.a:str.'/j src/**'
+    elseif isdirectory('scripts')
+        execute 'vimgrep /\C'.a:str.'/j scripts/**'
+    else
+        execute 'vimgrep /\C'.a:str.'/j **/*'
+    endif
 endfunction
 command! -nargs=* Grep call CustomGrep("<args>")
 
