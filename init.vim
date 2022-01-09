@@ -18,6 +18,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'phaazon/hop.nvim'
 Plug 'steelsojka/pears.nvim'
+Plug 'ctrlpvim/ctrlp.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -74,7 +75,7 @@ augroup DetectIndent
      autocmd!
      autocmd BufReadPost *  DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map
 
 " Setup custom build script
 function! CustomBuildCommand()
@@ -139,16 +140,14 @@ nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>1 "1p
 nnoremap <silent> <Leader>! "1P
 nnoremap <silent> <Leader>w :w<CR>
-nnoremap <Leader>f :e **/
-nnoremap <Leader>F :vs **/
 nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F4> @:<CR>
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
-imap <S-CR> <ESC>O
-imap <C-CR> <CR><ESC>kA
+inoremap <S-CR> <ESC>O
+" inoremap <C-CR> <CR><ESC>kA<CR>
 
 nnoremap <Leader>h <C-w>h
 nnoremap <Leader>j <C-w>j
@@ -174,6 +173,9 @@ nmap ga <Plug>(EasyAlign)
 
 " General plugin settings
 let g:indent_blankline_show_trailing_blankline_indent = v:false
+let g:ctrlp_map = '<C-p>'
+let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
 
 " Setup gitgutter
 let g:gitgutter_enabled = 1
