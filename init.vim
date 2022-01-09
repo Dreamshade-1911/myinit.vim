@@ -7,7 +7,6 @@ call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
 
 " Declare the list of plugins.
 Plug 'arcticicestudio/nord-vim'
-Plug 'justinmk/vim-sneak'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
@@ -17,13 +16,30 @@ Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'lukas-reineke/indent-blankline.nvim'
+Plug 'phaazon/hop.nvim'
+Plug 'steelsojka/pears.nvim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
+
+lua << EOF
+require "hop".setup()
+require "pears".setup()
+EOF
 
 colorscheme nord
 let g:airline_powerline_fonts = 1
 let g:airline_section_z = airline#section#create(['windowswap', '%3p%% '])
 
+if get(g:, 'nvui', 0)
+    hi Normal guibg=#1B1E23
+    NvuiCursorHideWhileTyping 1
+    " NvuiOpacity 1
+    NvuiTitlebarBg #22272e
+    NvuiTitlebarFontSize 10.5
+    NvuiCursorAnimationDuration 0.1
+endif
+
+set guifont=Cousine\ for\ Powerline:h11
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set guicursor+=o-i-r-c-ci-cr:-ver25
 set cursorline
@@ -50,13 +66,15 @@ set nowritebackup
 set updatetime=500
 set shortmess+=c
 set signcolumn=number
+set ignorecase
+set smartcase
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
      autocmd!
      autocmd BufReadPost *  DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,*.pdb,*.map
 
 " Setup custom build script
 function! CustomBuildCommand()
@@ -73,6 +91,17 @@ augroup CustomBuildScript
 augroup END
 call CustomBuildCommand()
 
+" Sane grep
+augroup GrepQuickFix
+    autocmd!
+    autocmd QuickFixCmdPost [^l]* botright cwindow
+    autocmd QuickFixCmdPost l* botright cwindow
+augroup END
+function! CustomGrep(str)
+    execute 'vimgrep /\C'.a:str.'/j **/*'
+endfunction
+command! -nargs=* Grep call CustomGrep("<args>")
+
 " General remaps
 map ç <C-c>
 nmap ç a
@@ -85,7 +114,7 @@ vmap Ç ^
 nnoremap <silent> <C-l> :let @/ = ""\|:mod<CR>
 
 " Output the current syntax group
-nnoremap <F10> :TSHighlightCapturesUnderCursor<CR>
+nnoremap <F11> :TSHighlightCapturesUnderCursor<CR>
 nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -101,14 +130,26 @@ nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
 nnoremap <silent> <Leader>p :e %:h<CR>
 nnoremap <silent> <Leader>P :vs %:h<CR>
-nnoremap <silent> <Leader>e :make!\|redraw\|botright cwindow<CR>
+nnoremap <silent> <Leader>1 "1p
+nnoremap <silent> <Leader>! "1P
 nnoremap <silent> <Leader>w :w<CR>
 nnoremap <Leader>f :e **/
 nnoremap <Leader>F :vs **/
 nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F4> @:<CR>
+nnoremap <F1> :set ignorecase! ignorecase?<CR>
+nnoremap s :HopWord<CR>
+nnoremap S :HopLine<CR>
+imap <S-CR> <ESC>O
+imap <C-CR> <CR><ESC>kA
 
+nnoremap <Leader>h <C-w>h
+nnoremap <Leader>j <C-w>j
+nnoremap <Leader>k <C-w>k
+nnoremap <Leader>l <C-w>l
+
+nnoremap <silent> <F9> :make!\|redraw\|botright cwindow<CR>
 function! ToggleQuickFix()
     if empty(filter(getwininfo(), 'v:val.quickfix'))
         botright cwindow
@@ -116,12 +157,7 @@ function! ToggleQuickFix()
         cclose
     endif
 endfunction
-nnoremap <silent> <Leader>E :call ToggleQuickFix()<CR>
-
-nnoremap <Leader>h <C-w>h
-nnoremap <Leader>j <C-w>j
-nnoremap <Leader>k <C-w>k
-nnoremap <Leader>l <C-w>l
+nnoremap <silent> <S-F9> :call ToggleQuickFix()<CR>
 
 nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
 nmap <Leader>gu <Plug>(GitGutterUndoHunk)
@@ -170,8 +206,8 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 nmap <leader>r <Plug>(coc-rename)
 
 " Formatting selected code.
-xmap <F9> <Plug>(coc-format-selected)
-nmap <F9> <Plug>(coc-format-selected)
+xmap <F10> <Plug>(coc-format-selected)
+nmap <F10> <Plug>(coc-format-selected)
 
 " Map function and class text objects
 " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
