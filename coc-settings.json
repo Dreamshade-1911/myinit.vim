@@ -1,4 +1,5 @@
 {
-    "diagnostic.enable": true
+    "diagnostic.enable": true,
+    "vetur.ignoreProjectWarning": true
 }
 

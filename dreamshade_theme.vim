@@ -1,9 +1,16 @@
 " This just changes a few colors from the Nord theme
 function! OverrideColorSchemes()
+    hi Normal guifg=#DBCAA4 guibg=NONE ctermbg=NONE
     hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE
     hi CursorLineNr guibg=#BCC7DA guifg=#101010 gui=bold ctermfg=NONE
 
-    hi Normal guifg=#DBCAA4 guibg=NONE ctermbg=NONE
+    hi link ExtraWhitespace Error
+
+    if get(g:, 'nvui', 0)
+        hi Normal guibg=#16191d
+        hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
+    endif
+
     hi Delimiter guifg=#DBCAA4
     hi Operator guifg=#DBCAA4
     hi vimMapRhs guifg=#DBCAA4
@@ -74,18 +81,19 @@ function! OverrideColorSchemes()
 
     hi Todo guifg=#E3B749 gui=underline,bold
     hi def link myTodos Todo
-    hi NoCheckin guifg=#FF0000 gui=underline,bold
+    hi NoCheckin guifg=#EE1010 gui=underline,bold
 
     call SetCustomSyntax()
+    windo syntax sync fromstart
 endfunction
 
 function! SetCustomSyntax()
+    match ExtraWhitespace /\s\+$/
     " @ForThis: Setup notes like the one before <
     syn match myTodos /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
-    syn match NoCheckin /nocheckin\c/ containedin=.*Comment.*
-    syn match NoCheckin /nocheckin\c/
+    syn match NoCheckin /nocheckin/
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
-    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
+    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
     syn keyword cStatement For defer Loop
     syn match sSymbols "\.\|->\|=>"
 endfunction
