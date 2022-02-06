@@ -1,4 +1,6 @@
-syntax on
+set nocompatible
+filetype plugin on
+syntax enable
 set termguicolors
 exec "source " . stdpath('config') . "/dreamshade_theme.vim"
 
@@ -19,6 +21,8 @@ Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'phaazon/hop.nvim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tikhomirov/vim-glsl'
+Plug 'posva/vim-vue'
+Plug 'tpope/vim-surround'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -42,13 +46,13 @@ if get(g:, 'nvui', 0)
     NvuiCursorFrametime 6.95
     NvuiScrollFrametime 6.95
     NvuiMoveAnimationFrametime 6.95
-    NvuiSnapshotLimit 32
+    NvuiSnapshotLimit 64
     NvuiIMEDisable
 endif
 
 set guifont=Cousine\ for\ Powerline:h11
+set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
-set guicursor+=o-i-r-c-ci-cr:-ver25
 set cursorline
 set showmatch
 set expandtab
@@ -75,6 +79,7 @@ set shortmess+=c
 set signcolumn=number
 set ignorecase
 set smartcase
+set path+=**
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
@@ -106,11 +111,11 @@ augroup GrepQuickFix
 augroup END
 function! CustomGrep(str)
     if isdirectory("src")
-        execute "vimgrep /\C'.a:str.'/j src/**"
+        execute "vimgrep /\\C".a:str."/j src/**"
     elseif isdirectory("scripts")
-        execute "vimgrep /\C'.a:str.'/j scripts/**"
+        execute "vimgrep /\\C".a:str."/j scripts/**"
     else
-        execute "vimgrep /\C'.a:str.'/j **/*"
+        execute "vimgrep /\\C".a:str."/j **/*"
     endif
 endfunction
 command! -nargs=* Grep call CustomGrep("<args>")
@@ -133,6 +138,9 @@ nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F9> :make!\|redraw\|botright cwindow<CR>
 nnoremap <silent> <F10> :silent !run<CR> :cclose<CR>
 
+" Clear last search highlighting with Ctrl+l and redraw
+nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
+
 function! ToggleQuickFix()
     if empty(filter(getwininfo(), "v:val.quickfix"))
         botright cwindow 18
@@ -147,9 +155,6 @@ nnoremap <F11> :TSHighlightCapturesUnderCursor<CR>
 nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-
-" Clear last search highlighting with Ctrl+l and redraw
-nnoremap <silent> <C-l> :let @/ = ""\|:mod<CR>
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -183,6 +188,7 @@ let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+let g:vue_pre_processors = 'detect_on_enter'
 
 " Setup gitgutter
 let g:gitgutter_enabled = 1
@@ -197,11 +203,11 @@ hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 " Setup CoC
 let g:coc_config_home = stdpath('config')
 nnoremap <silent> <Leader>u :call CocActionAsync('doHover')<CR>
-inoremap <silent><expr> <TAB>
+inoremap <silent><expr> <S-TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
       \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
   let col = col(".") - 1

@@ -11,6 +11,8 @@ function! OverrideColorSchemes()
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
 
+    hi NonText guibg=NONE ctermbg=NONE
+
     hi Delimiter guifg=#DBCAA4
     hi Operator guifg=#DBCAA4
     hi vimMapRhs guifg=#DBCAA4
@@ -26,7 +28,6 @@ function! OverrideColorSchemes()
     hi typescriptMember guifg=#DBCAA4
     hi typescriptBinaryOp guifg=#DBCAA4
     hi typescriptInterfaceName guifg=#DBCAA4
-    hi NonText guibg=NONE ctermbg=NONE
     hi typescriptGlobal guifg=#DBCAA4
     hi typescriptES6SetMethod guifg=#DBCAA4
     hi typescriptBOMNavigatorProp guifg=#DBCAA4
@@ -80,18 +81,14 @@ function! OverrideColorSchemes()
     hi htmlArg guifg=#BCC7DA
 
     hi Todo guifg=#E3B749 gui=underline,bold
-    hi def link myTodos Todo
     hi NoCheckin guifg=#EE1010 gui=underline,bold
-
-    call SetCustomSyntax()
-    windo syntax sync fromstart
 endfunction
 
 function! SetCustomSyntax()
     match ExtraWhitespace /\s\+$/
     " @ForThis: Setup notes like the one before <
-    syn match myTodos /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
-    syn match NoCheckin /nocheckin/
+    syn match Todo /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
+    syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
     syn keyword cStatement For defer Loop
