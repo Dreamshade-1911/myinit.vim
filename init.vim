@@ -103,6 +103,9 @@ augroup CustomBuildScript
 augroup END
 call CustomBuildCommand()
 
+" Custom commands
+command! Cdf cd %:p:h
+
 " Quick recursive grep
 augroup GrepQuickFix
     autocmd!
@@ -114,6 +117,8 @@ function! CustomGrep(str)
         execute "vimgrep /\\C".a:str."/j src/**"
     elseif isdirectory("scripts")
         execute "vimgrep /\\C".a:str."/j scripts/**"
+    elseif isdirectory("app")
+        execute "vimgrep /\\C".a:str."/j app/**"
     else
         execute "vimgrep /\\C".a:str."/j **/*"
     endif
@@ -138,7 +143,7 @@ nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F9> :make!\|redraw\|botright cwindow<CR>
 nnoremap <silent> <F10> :silent !run<CR> :cclose<CR>
 
-" Clear last search highlighting with Ctrl+l and redraw
+" Clear last search highlighting with Ctrl+l and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
 
 function! ToggleQuickFix()
@@ -151,7 +156,6 @@ endfunction
 nnoremap <silent> <S-F9> :call ToggleQuickFix()<CR>
 
 " Output the current syntax group
-nnoremap <F11> :TSHighlightCapturesUnderCursor<CR>
 nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
