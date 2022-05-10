@@ -7,7 +7,7 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if get(g:, 'nvui', 0)
-        hi Normal guibg=#16191d
+        hi Normal guibg=#0f1214
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
 

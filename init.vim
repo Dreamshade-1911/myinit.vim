@@ -104,7 +104,7 @@ augroup END
 call CustomBuildCommand()
 
 " Custom commands
-command! Cdf cd %:p:h
+command! CdHere cd %:p:h
 
 " Quick recursive grep
 augroup GrepQuickFix
