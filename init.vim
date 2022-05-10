@@ -80,6 +80,7 @@ set signcolumn=number
 set ignorecase
 set smartcase
 set path+=**
+set nofoldenable
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
@@ -90,9 +91,9 @@ set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,b
 
 " Setup custom build script
 function! CustomBuildCommand()
-    if executable("build.sh") && executable("sudo")
+    if executable("build.sh") && has("unix")
         set makeprg=build.sh
-    elseif executable("build.bat") && executable("cmd")
+    elseif executable("build.bat") && has("win32")
         set makeprg=build.bat
     endif
 endfunction
