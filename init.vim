@@ -68,7 +68,7 @@ set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
 set filetype
-set fileformat=dos
+set fileformat=unix
 set wildmenu
 set clipboard=unnamed
 set hidden
@@ -163,9 +163,9 @@ nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 " Leader keybinds
 nnoremap <Space> <Nop>
 let mapleader = "\<Space>"
-nnoremap <silent> <Leader><Leader> :source $myvimrc<CR>
-nnoremap <silent> <Leader>' :e $myvimrc<CR>
-nnoremap <silent> <Leader>" :vs $myvimrc<CR>
+nnoremap <silent> <Leader><Leader> :source $MYVIMRC<CR>
+nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
+nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
 nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
 nnoremap <silent> <Leader>q <C-w>c
