@@ -91,7 +91,7 @@ function! SetCustomSyntax()
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
-    syn keyword cStatement For defer Loop
+    syn keyword cStatement For defer loop
     syn match sSymbols "\.\|->\|=>"
 endfunction
 

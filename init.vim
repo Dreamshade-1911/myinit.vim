@@ -68,9 +68,8 @@ set backspace=indent,eol,start
 set encoding=utf-8
 set splitright
 set filetype
-set fileformat=unix
 set wildmenu
-set clipboard=unnamed
+set clipboard=unnamed,unnamedplus
 set hidden
 set nobackup
 set nowritebackup
@@ -81,13 +80,15 @@ set ignorecase
 set smartcase
 set path+=**
 set nofoldenable
+set nowrap
+set shiftwidth=4
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
      autocmd!
      autocmd BufReadPost * DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,*/third_party/*
 
 " Setup custom build script
 function! CustomBuildCommand()
@@ -126,6 +127,14 @@ function! CustomGrep(str)
 endfunction
 command! -nargs=* Grep call CustomGrep("<args>")
 
+" Simple scratch buffer
+function! Scratch()
+    vnew
+    noswapfile hide enew
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+endfunction
+
 " General remaps
 map ç <C-c>
 nmap ç a
@@ -139,6 +148,7 @@ inoremap <C-CR> <ESC>O
 inoremap <S-CR> <ESC>F{a<CR><ESC>O
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
+nnoremap <silent> <F5> :call Scratch()<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F8> :cnext<CR>
 nnoremap <silent> <F9> :make!\|redraw\|botright cwindow<CR>
@@ -155,6 +165,18 @@ function! ToggleQuickFix()
     endif
 endfunction
 nnoremap <silent> <S-F9> :call ToggleQuickFix()<CR>
+
+" Increase and decrease font size bindings
+nnoremap <C-Up> :silent! let &guifont = substitute(
+ \ &guifont,
+ \ ':h\zs\d\+',
+ \ '\=eval(submatch(0)+1)',
+ \ '')<CR>
+nnoremap <C-Down> :silent! let &guifont = substitute(
+ \ &guifont,
+ \ ':h\zs\d\+',
+ \ '\=eval(submatch(0)-1)',
+ \ '')<CR>
 
 " Output the current syntax group
 nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
@@ -194,6 +216,8 @@ let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
 let g:vue_pre_processors = 'detect_on_enter'
+let g:netrw_banner = 0
+let g:netrw_cygwin = 0
 
 " Setup gitgutter
 let g:gitgutter_enabled = 1
