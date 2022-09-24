@@ -39,7 +39,7 @@ if get(g:, 'nvui', 0)
     NvuiCursorHideWhileTyping 1
     " NvuiOpacity 1
     NvuiTitlebarBg #22272e
-    NvuiTitlebarFontSize 10
+    NvuiTitlebarFontSize 11
     NvuiCursorAnimationDuration 0.15
     NvuiScrollAnimationDuration 0.3
     NvuiMoveAnimationDuration 0.3
@@ -146,6 +146,8 @@ nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
 inoremap <C-CR> <ESC>O
 inoremap <S-CR> <ESC>F{a<CR><ESC>O
+nnoremap <C-Left> :vertical resize -15<CR>
+nnoremap <C-Right> :vertical resize +15<CR>
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
 nnoremap <silent> <F5> :call Scratch()<CR>
@@ -191,7 +193,7 @@ nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
 nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
 nnoremap <silent> <Leader>s :vs<CR><C-w>l
 nnoremap <silent> <Leader>S <C-w>L
-nnoremap <silent> <Leader>q <C-w>c
+nnoremap <silent> <Leader>q :q<CR>
 nnoremap <silent> <Leader>p :e %:h<CR>
 nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>0 "0p
