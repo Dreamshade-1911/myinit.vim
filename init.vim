@@ -16,7 +16,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'airblade/vim-gitgutter'
 Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'phaazon/hop.nvim'
 Plug 'ctrlpvim/ctrlp.vim'
@@ -33,11 +32,11 @@ EOF
 colorscheme nord
 let g:airline_powerline_fonts = 1
 let g:airline_skip_empty_sections = 1
-let g:airline_section_z = airline#section#create(['windowswap', '%3p%% '])
+let g:airline_section_z = airline#section#create(["windowswap", "%3p%% "])
 
-if get(g:, 'nvui', 0)
+if get(g:, "nvui", 0)
     NvuiCursorHideWhileTyping 1
-    " NvuiOpacity 1
+    NvuiOpacity 1
     NvuiTitlebarBg #22272e
     NvuiTitlebarFontSize 11
     NvuiCursorAnimationDuration 0.15
@@ -80,8 +79,8 @@ set ignorecase
 set smartcase
 set path+=**
 set nofoldenable
-set nowrap
 set shiftwidth=4
+set synmaxcol=1000
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
@@ -144,10 +143,14 @@ imap Ç <C-o>
 vmap Ç 0^
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
+inoremap <S-TAB> <C-p>
+inoremap <c-u> <esc>viwUea
 inoremap <C-CR> <ESC>O
 inoremap <S-CR> <ESC>F{a<CR><ESC>O
 nnoremap <C-Left> :vertical resize -15<CR>
 nnoremap <C-Right> :vertical resize +15<CR>
+noremap <expr> j v:count ? "j" : "gj"
+noremap <expr> k v:count ? "k" : "gk"
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
 nnoremap <silent> <F5> :call Scratch()<CR>
@@ -199,6 +202,7 @@ nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>0 "0p
 nnoremap <silent> <Leader>) "0P
 nnoremap <silent> <Leader>w :w<CR>
+nnoremap <silent> <Leader>c :call CenterPane()<cr>
 
 nnoremap <Leader>h <C-w>h
 nnoremap <Leader>j <C-w>j
@@ -214,6 +218,7 @@ nmap ga <Plug>(EasyAlign)
 
 " General plugin settings
 let g:indent_blankline_show_trailing_blankline_indent = v:false
+let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
@@ -230,58 +235,4 @@ hi! link GitGutterAddLineNr DiffAdd
 hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
-
-" Setup CoC
-let g:coc_config_home = stdpath('config')
-nnoremap <silent> <Leader>u :call CocActionAsync('doHover')<CR>
-inoremap <silent><expr> <S-TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col(".") - 1
-  return !col || getline(".")[col - 1]  =~# "\s"
-endfunction
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync("highlight")
-
-" Symbol renaming.
-nmap <leader>r <Plug>(coc-rename)
-
-" Formatting selected code.
-xmap <F3> <Plug>(coc-format-selected)
-nmap <F3> <Plug>(coc-format-selected)
-
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-
-" Remap <C-f> and <C-b> for scroll float windows/popups.
-if has("nvim-0.4.0") || has("patch-8.2.0750")
-    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction("format")
 
