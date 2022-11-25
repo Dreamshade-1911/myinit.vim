@@ -22,6 +22,8 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'posva/vim-vue'
 Plug 'tpope/vim-surround'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'jansedivy/jai.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -143,10 +145,16 @@ imap Ç <C-o>
 vmap Ç 0^
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
-inoremap <S-TAB> <C-p>
 inoremap <c-u> <esc>viwUea
 inoremap <C-CR> <ESC>O
 inoremap <S-CR> <ESC>F{a<CR><ESC>O
+inoremap <S-TAB> <C-n>
+inoremap <C-TAB> <C-p>
+
+"Close HTML Tag
+inoremap <C-j> <ESC>vF<yPla/<ESC>hi
+nnoremap <C-j> vF<yPla/<ESC>h
+
 nnoremap <C-Left> :vertical resize -15<CR>
 nnoremap <C-Right> :vertical resize +15<CR>
 noremap <expr> j v:count ? "j" : "gj"
@@ -202,7 +210,6 @@ nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>0 "0p
 nnoremap <silent> <Leader>) "0P
 nnoremap <silent> <Leader>w :w<CR>
-nnoremap <silent> <Leader>c :call CenterPane()<cr>
 
 nnoremap <Leader>h <C-w>h
 nnoremap <Leader>j <C-w>j
@@ -222,6 +229,7 @@ let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+let g:ctrlp_use_caching = 0
 let g:vue_pre_processors = 'detect_on_enter'
 let g:netrw_banner = 0
 let g:netrw_cygwin = 0
@@ -236,3 +244,45 @@ hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
+" Setup CoC
+let g:coc_config_home = stdpath('config')
+
+inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
+nnoremap <silent> <Leader>u :call CocActionAsync('doHover')<CR>
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Symbol renaming.
+nmap <leader>r <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <F3> <Plug>(coc-format-selected)
+nmap <F3> <Plug>(coc-format-selected)
+
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+if has("nvim-0.4.0") || has("patch-8.2.0750")
+    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction("format")
