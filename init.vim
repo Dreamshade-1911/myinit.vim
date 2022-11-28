@@ -23,13 +23,10 @@ Plug 'tikhomirov/vim-glsl'
 Plug 'posva/vim-vue'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 Plug 'jansedivy/jai.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
-
-lua << EOF
-require "hop".setup()
-EOF
 
 colorscheme nord
 let g:airline_powerline_fonts = 1
@@ -89,22 +86,7 @@ augroup DetectIndent
      autocmd!
      autocmd BufReadPost * DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,*/third_party/*
-
-" Setup custom build script
-function! CustomBuildCommand()
-    if executable("build.sh") && has("unix")
-        set makeprg=build.sh
-    elseif executable("build.bat") && has("win32")
-        set makeprg=build.bat
-    endif
-endfunction
-
-augroup CustomBuildScript
-    autocmd!
-    autocmd DirChanged * call CustomBuildCommand()
-augroup END
-call CustomBuildCommand()
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party
 
 " Custom commands
 command! CdHere cd %:p:h
@@ -150,6 +132,7 @@ inoremap <C-CR> <ESC>O
 inoremap <S-CR> <ESC>F{a<CR><ESC>O
 inoremap <S-TAB> <C-n>
 inoremap <C-TAB> <C-p>
+tnoremap <Esc> <C-\><C-n>
 
 "Close HTML Tag
 inoremap <C-j> <ESC>vF<yPla/<ESC>hi
@@ -164,8 +147,6 @@ nnoremap <silent> <F4> @:<CR>
 nnoremap <silent> <F5> :call Scratch()<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F8> :cnext<CR>
-nnoremap <silent> <F9> :make!\|redraw\|botright cwindow<CR>
-nnoremap <silent> <F10> :silent !run<CR> :cclose<CR>
 
 " Clear last search highlighting with Ctrl+l and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
@@ -244,6 +225,26 @@ hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
+" Setup ToggleTerm
+autocmd TermEnter term://*toggleterm#*
+      \ tnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
+
+" By applying the mappings this way you can pass a count to your
+" mapping to open a specific window.
+" For example: 2<C-'> will open terminal 2
+nnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
+inoremap <silent><C-'> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
+nnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
+inoremap <silent><C-1> <Esc><Cmd>exe "1ToggleTerm"<CR>
+nnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
+inoremap <silent><C-2> <Esc><Cmd>exe "2ToggleTerm"<CR>
+nnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
+inoremap <silent><C-3> <Esc><Cmd>exe "3ToggleTerm"<CR>
+nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR>
+inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR>
+nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="build && run"'<CR>
+inoremap <silent><F10> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR>
+
 " Setup CoC
 let g:coc_config_home = stdpath('config')
 
@@ -286,3 +287,6 @@ endif
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
+
+" Call lua init
+exec "source " . stdpath('config') . "/lua_init.lua"

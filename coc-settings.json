@@ -1,13 +1,14 @@
 {
     "diagnostic.enable": true,
+    "inlayHint.enable": false,
     "suggest.removeDuplicateItems": true,
     "suggest.floatConfig": {
         "border": true,
         "maxWidth": 600
     },
     "clangd.path": "~\\AppData\\Local\\coc\\extensions\\coc-clangd-data\\install\\15.0.3\\clangd_15.0.3\\bin\\clangd.exe",
-    "clangd.enabled": false,
     "typescript.suggest.completeFunctionCalls": false,
-    "javascript.suggest.completeFunctionCalls": false
+    "javascript.suggest.completeFunctionCalls": false,
+    "vetur.ignoreProjectWarning": true
 }
 

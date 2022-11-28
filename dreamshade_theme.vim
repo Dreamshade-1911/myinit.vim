@@ -1,3 +1,20 @@
+let g:terminal_color_0  = '#2e3436'
+let g:terminal_color_1  = '#cc0000'
+let g:terminal_color_2  = '#4e9a06'
+let g:terminal_color_3  = '#c4a000'
+let g:terminal_color_4  = '#3465a4'
+let g:terminal_color_5  = '#75507b'
+let g:terminal_color_6  = '#0b939b'
+let g:terminal_color_7  = '#d3d7cf'
+let g:terminal_color_8  = '#555753'
+let g:terminal_color_9  = '#ef2929'
+let g:terminal_color_10 = '#8ae234'
+let g:terminal_color_11 = '#fce94f'
+let g:terminal_color_12 = '#729fcf'
+let g:terminal_color_13 = '#ad7fa8'
+let g:terminal_color_14 = '#00f5e9'
+let g:terminal_color_15 = '#eeeeec'
+
 " This just changes a few colors from the Nord theme
 function! OverrideColorSchemes()
     hi Normal guifg=#DBCAA4 guibg=NONE ctermbg=NONE
@@ -91,7 +108,7 @@ function! SetCustomSyntax()
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
-    syn keyword cStatement For defer loop
+    syn keyword cStatement For defer Loop
     syn match sSymbols "\.\|->\|=>"
 endfunction
 
