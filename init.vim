@@ -24,7 +24,7 @@ Plug 'posva/vim-vue'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
-Plug 'jansedivy/jai.vim'
+" Plug 'jansedivy/jai.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -48,7 +48,7 @@ if get(g:, "nvui", 0)
     NvuiIMEDisable
 endif
 
-set guifont=Cousine\ for\ Powerline:h11
+set guifont=Cousine\ NFM:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
@@ -125,6 +125,7 @@ nmap Ç 0^
 imap ç <Esc>
 imap Ç <C-o>
 vmap Ç 0^
+tnoremap ç <C-\><C-n>
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
 inoremap <c-u> <esc>viwUea
@@ -244,6 +245,8 @@ nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR>
 inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR>
 nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="build && run"'<CR>
 inoremap <silent><F10> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR>
+nnoremap <silent><F11> <Cmd>exe '1TermExec cmd="run"'<CR>
+inoremap <silent><F11> <Esc><Cmd>exe '1TermExec cmd="run"'<CR>
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
