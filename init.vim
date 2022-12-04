@@ -209,12 +209,13 @@ nmap ga <Plug>(EasyAlign)
 let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
-let g:ctrlp_working_path_mode = "ra"
+let g:ctrlp_working_path_mode = "wra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
 let g:ctrlp_use_caching = 0
 let g:vue_pre_processors = 'detect_on_enter'
 let g:netrw_banner = 0
 let g:netrw_cygwin = 0
+let g:ctrlp_by_filename = 1
 
 " Setup gitgutter
 let g:gitgutter_enabled = 1
@@ -241,12 +242,14 @@ nnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
 inoremap <silent><C-2> <Esc><Cmd>exe "2ToggleTerm"<CR>
 nnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
 inoremap <silent><C-3> <Esc><Cmd>exe "3ToggleTerm"<CR>
-nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR>
-inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR>
-nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="build && run"'<CR>
-inoremap <silent><F10> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR>
-nnoremap <silent><F11> <Cmd>exe '1TermExec cmd="run"'<CR>
-inoremap <silent><F11> <Esc><Cmd>exe '1TermExec cmd="run"'<CR>
+
+" Build and run bindings
+nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
+inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
+nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="run"'<CR><C-w>ji
+inoremap <silent><F10> <Esc><Cmd>exe '1TermExec cmd="run"'<CR><C-w>ji
+nnoremap <silent><F11> <Cmd>exe '1TermExec cmd="build && run"'<CR><C-w>ji
+inoremap <silent><F11> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR><C-w>ji
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
