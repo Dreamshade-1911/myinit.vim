@@ -2,10 +2,10 @@ function TerminalOnOpen(terminal)
     vim.cmd("startinsert")
 end
 
-require "hop".setup()
+require("hop").setup()
 require("toggleterm").setup{
     on_open = TerminalOnOpen,
-    size = 25,
+    size = 22,
     open_mapping = [[<C-'>]],
     hide_numbers = true,
     shade_filetypes = {},

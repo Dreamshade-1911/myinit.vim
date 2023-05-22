@@ -6,9 +6,9 @@
         "border": true,
         "maxWidth": 600
     },
-    "clangd.path": "~\\AppData\\Local\\coc\\extensions\\coc-clangd-data\\install\\15.0.3\\clangd_15.0.3\\bin\\clangd.exe",
     "typescript.suggest.completeFunctionCalls": false,
     "javascript.suggest.completeFunctionCalls": false,
-    "vetur.ignoreProjectWarning": true
+    "html.autoClosingTags": false,
+    "html.autoCreateQuotes": false
 }
 

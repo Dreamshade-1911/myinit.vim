@@ -24,7 +24,9 @@ Plug 'posva/vim-vue'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
-" Plug 'jansedivy/jai.vim'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'bfrg/vim-cpp-modern'
+Plug 'rluba/jai.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -48,10 +50,11 @@ if get(g:, "nvui", 0)
     NvuiIMEDisable
 endif
 
-set guifont=Cousine\ NFM:h11
+set guifont=Cousine\ NFM:h10
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
+set autoread
 set showmatch
 set expandtab
 set autoindent
@@ -86,7 +89,7 @@ augroup DetectIndent
      autocmd!
      autocmd BufReadPost * DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,assets,.nyc_output
 
 " Custom commands
 command! CdHere cd %:p:h
@@ -119,26 +122,23 @@ function! Scratch()
 endfunction
 
 " General remaps
-map ç <C-c>
-nmap ç a
-nmap Ç 0^
-imap ç <Esc>
-imap Ç <C-o>
-vmap Ç 0^
+" map ç <C-c>
+" nmap ç a
+" nmap Ç 0^
+" imap ç <Esc>
+" imap Ç <C-o>
+" vmap Ç 0^
+nmap ) ^
+vmap ) ^
 tnoremap ç <C-\><C-n>
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
 inoremap <c-u> <esc>viwUea
-inoremap <C-CR> <ESC>O
-inoremap <S-CR> <ESC>F{a<CR><ESC>O
+inoremap <S-CR> <ESC>O
+inoremap <C-CR> <ESC>F{a<CR><ESC>O
 inoremap <S-TAB> <C-n>
 inoremap <C-TAB> <C-p>
 tnoremap <Esc> <C-\><C-n>
-
-"Close HTML Tag
-inoremap <C-j> <ESC>vF<yPla/<ESC>hi
-nnoremap <C-j> vF<yPla/<ESC>h
-
 nnoremap <C-Left> :vertical resize -15<CR>
 nnoremap <C-Right> :vertical resize +15<CR>
 noremap <expr> j v:count ? "j" : "gj"
@@ -148,9 +148,18 @@ nnoremap <silent> <F4> @:<CR>
 nnoremap <silent> <F5> :call Scratch()<CR>
 nnoremap <silent> <F7> :cprevious<CR>
 nnoremap <silent> <F8> :cnext<CR>
-
-" Clear last search highlighting with Ctrl+l and reset syntax highlighting
+" Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
+
+" Prevent netrw from remapping Ctrl+l
+function! NetrwMapping()
+  nnoremap <buffer> <C-l> <C-w>l
+endfunction
+
+augroup netrw_mapping
+  autocmd!
+  autocmd filetype netrw call NetrwMapping()
+augroup END
 
 function! ToggleQuickFix()
     if empty(filter(getwininfo(), "v:val.quickfix"))
@@ -192,7 +201,6 @@ nnoremap <silent> <Leader>P :vs %:h<CR>
 nnoremap <silent> <Leader>0 "0p
 nnoremap <silent> <Leader>) "0P
 nnoremap <silent> <Leader>w :w<CR>
-
 nnoremap <Leader>h <C-w>h
 nnoremap <Leader>j <C-w>j
 nnoremap <Leader>k <C-w>k
@@ -202,6 +210,7 @@ nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
 nmap <Leader>gu <Plug>(GitGutterUndoHunk)
 nmap <Leader>gs <Plug>(GitGutterStageHunk)
 xmap <Leader>gs <Plug>(GitGutterStageHunk)
+
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
@@ -212,10 +221,11 @@ let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "wra"
 let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
 let g:ctrlp_use_caching = 0
-let g:vue_pre_processors = 'detect_on_enter'
-let g:netrw_banner = 0
+let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:ctrlp_by_filename = 1
+let g:gutentags_cache_dir = stdpath('data') . "/ctags"
+let g:cpp_attributes_highlight = 1
 
 " Setup gitgutter
 let g:gitgutter_enabled = 1

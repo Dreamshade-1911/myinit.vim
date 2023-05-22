@@ -7,12 +7,13 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if get(g:, 'nvui', 0)
-        hi Normal guibg=#0f1214
+        hi Normal guibg=#0F1214
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
 
     hi NonText guibg=NONE ctermbg=NONE
 
+    hi Function guifg=#DBCAA4
     hi Delimiter guifg=#DBCAA4
     hi Operator guifg=#DBCAA4
     hi vimMapRhs guifg=#DBCAA4
@@ -76,7 +77,6 @@ function! OverrideColorSchemes()
     hi Define guifg=#BCC7DA
     hi Include guifg=#BCC7DA
     hi PreProc guifg=#BCC7DA
-    hi Function guifg=#BCC7DA
     hi htmlTag guifg=#BCC7DA
     hi htmlArg guifg=#BCC7DA
 
@@ -90,8 +90,8 @@ function! SetCustomSyntax()
     syn match Todo /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
-    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte Vec2 Vec3 Vec4 Vec2f Vec3f Vec4f Mat2 Mat3 Mat4 Mat2f Mat3f Mat4f
-    syn keyword cStatement For defer Loop
+    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
+    syn keyword cStatement defer
     syn match sSymbols "\.\|->\|=>"
 endfunction
 
