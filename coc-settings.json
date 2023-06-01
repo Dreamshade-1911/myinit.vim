@@ -6,6 +6,8 @@
         "border": true,
         "maxWidth": 600
     },
+    "colors.enable": true,
+    "semanticTokens.enable": true,
     "typescript.suggest.completeFunctionCalls": false,
     "javascript.suggest.completeFunctionCalls": false,
     "html.autoClosingTags": false,

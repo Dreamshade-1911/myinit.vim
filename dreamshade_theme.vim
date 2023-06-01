@@ -13,6 +13,7 @@ function! OverrideColorSchemes()
 
     hi NonText guibg=NONE ctermbg=NONE
 
+    hi Identifier guifg=#DBCAA4 gui=NONE
     hi Function guifg=#DBCAA4
     hi Delimiter guifg=#DBCAA4
     hi Operator guifg=#DBCAA4
@@ -21,18 +22,6 @@ function! OverrideColorSchemes()
     hi vimUserFunc guifg=#DBCAA4
     hi vimUserAttrbKey guifg=#DBCAA4
     hi javaScript guifg=#DBCAA4
-    hi typescriptAssign guifg=#DBCAA4
-    hi typescriptTypeBrackets guifg=#DBCAA4
-    hi typescriptTypeAnnotation guifg=#DBCAA4
-    hi typescriptOptionalMark guifg=#DBCAA4
-    hi typescriptArrowFunc guifg=#DBCAA4
-    hi typescriptMember guifg=#DBCAA4
-    hi typescriptBinaryOp guifg=#DBCAA4
-    hi typescriptInterfaceName guifg=#DBCAA4
-    hi typescriptGlobal guifg=#DBCAA4
-    hi typescriptES6SetMethod guifg=#DBCAA4
-    hi typescriptBOMNavigatorProp guifg=#DBCAA4
-    hi typescriptJSONStaticMethod guifg=#DBCAA4
     hi htmlTagN guifg=#DBCAA4
     hi htmlTagName guifg=#DBCAA4
 
@@ -43,11 +32,15 @@ function! OverrideColorSchemes()
     hi Character guifg=#2EB8A6
     hi cIncluded guifg=#2EB8A6
 
+    hi Structure guifg=#55C08E gui=NONE
+    hi StorageClass guifg=#55C08E gui=NONE
     hi Type guifg=#55C08E
     hi vimNotation guifg=#55C08E
     hi typescriptClassname guifg=#55C08E
     hi typescriptTypeParameter guifg=#55C08E
     hi typescriptInterfaceName guifg=#55C08E gui=NONE
+    hi typescriptClassname guifg=#55C08E gui=NONE
+    hi typescriptTypeReference guifg=#55C08E gui=NONE
 
     hi Number guifg=#82DDD9
     hi Boolean guifg=#82DDD9
@@ -61,14 +54,11 @@ function! OverrideColorSchemes()
 
     hi Operator guifg=#8CD4AC
 
-    hi Structure guifg=#FFFFFF gui=NONE
-    hi StorageClass guifg=#FFFFFF gui=NONE
     hi Repeat guifg=#FFFFFF gui=NONE
     hi Conditional guifg=#FFFFFF gui=NONE
     hi Label guifg=#FFFFFF gui=NONE
     hi Statement guifg=#FFFFFF gui=NONE
     hi Keyword guifg=#FFFFFF gui=NONE
-    hi Identifier guifg=#FFFFFF gui=NONE
     hi CppModifier guifg=#FFFFFF gui=NONE
     hi Exception guifg=#FFFFFF gui=NONE
 

@@ -50,7 +50,7 @@ if get(g:, "nvui", 0)
     NvuiIMEDisable
 endif
 
-set guifont=Cousine\ NFM:h10
+set guifont=Cousine\ NFM:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
@@ -61,7 +61,6 @@ set autoindent
 set wildmode=longest,list
 set timeoutlen=500
 set scrolloff=22
-set scroll=18
 set number
 set noswapfile
 set mouse=a
@@ -84,12 +83,15 @@ set nofoldenable
 set shiftwidth=4
 set synmaxcol=1000
 
+" Enable comments in JSON files
+autocmd FileType json syntax match Comment +\/\/.\+$+
+
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent
      autocmd!
      autocmd BufReadPost * DetectIndent
 augroup END
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,assets,.nyc_output
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 " Custom commands
 command! CdHere cd %:p:h
@@ -128,12 +130,12 @@ endfunction
 " imap ç <Esc>
 " imap Ç <C-o>
 " vmap Ç 0^
-nmap ) ^
-vmap ) ^
+nnoremap ) ^
+vnoremap ) ^
 tnoremap ç <C-\><C-n>
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
-inoremap <c-u> <esc>viwUea
+inoremap <C-u> <esc>viwUea
 inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
 inoremap <S-TAB> <C-n>
@@ -146,19 +148,19 @@ noremap <expr> k v:count ? "k" : "gk"
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
 nnoremap <silent> <F5> :call Scratch()<CR>
-nnoremap <silent> <F7> :cprevious<CR>
-nnoremap <silent> <F8> :cnext<CR>
+nnoremap <silent> <C-9> :cprevious<CR>
+nnoremap <silent> <C-0> :cnext<CR>
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
 
 " Prevent netrw from remapping Ctrl+l
 function! NetrwMapping()
-  nnoremap <buffer> <C-l> <C-w>l
+    nnoremap <buffer> <C-l> <C-w>l
 endfunction
 
 augroup netrw_mapping
-  autocmd!
-  autocmd filetype netrw call NetrwMapping()
+    autocmd!
+    autocmd filetype netrw call NetrwMapping()
 augroup END
 
 function! ToggleQuickFix()
@@ -168,7 +170,7 @@ function! ToggleQuickFix()
         cclose
     endif
 endfunction
-nnoremap <silent> <S-F9> :call ToggleQuickFix()<CR>
+nnoremap <silent> <C-8> :call ToggleQuickFix()<CR>
 
 " Increase and decrease font size bindings
 nnoremap <C-Up> :silent! let &guifont = substitute(
@@ -254,6 +256,7 @@ nnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
 inoremap <silent><C-3> <Esc><Cmd>exe "3ToggleTerm"<CR>
 
 " Build and run bindings
+nnoremap <silent><C--> <Cmd>make<CR>
 nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
 inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
 nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="run"'<CR><C-w>ji
@@ -265,7 +268,7 @@ inoremap <silent><F11> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR><C-w>ji
 let g:coc_config_home = stdpath('config')
 
 inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
-nnoremap <silent> <Leader>u :call CocActionAsync('doHover')<CR>
+nnoremap <silent> <C-h> :call CocActionAsync('doHover')<CR>
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
