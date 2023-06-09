@@ -28,3 +28,13 @@ require("toggleterm").setup{
         },
     },
 }
+
+require("sidebar-nvim").setup({
+    open = true,
+    side = "left",
+    initial_width = 100,
+    update_interval = 1000,
+    sections = { "datetime", "git", "diagnostics", "buffers", "todos" },
+    datetime = { format = "%a %b %d, %H:%M", clocks = { { name = "local" } } },
+    todos = { initially_closed = false },
+})

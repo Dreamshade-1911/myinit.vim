@@ -4,13 +4,17 @@
     "suggest.removeDuplicateItems": true,
     "suggest.floatConfig": {
         "border": true,
-        "maxWidth": 600
+        "maxWidth": 600,
+        "rounded": true,
+        "winblend": 10
     },
     "colors.enable": true,
     "semanticTokens.enable": true,
     "typescript.suggest.completeFunctionCalls": false,
     "javascript.suggest.completeFunctionCalls": false,
     "html.autoClosingTags": false,
-    "html.autoCreateQuotes": false
+    "html.autoCreateQuotes": false,
+    "zig.zls.path": "C:\\Users\\ferna\\AppData\\Local\\coc\\extensions\\coc-zls-data\\zls_install\\zls.exe",
+    "vetur.ignoreProjectWarning": true
 }
 

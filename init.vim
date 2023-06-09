@@ -27,6 +27,7 @@ Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'bfrg/vim-cpp-modern'
 Plug 'rluba/jai.vim'
+Plug 'sidebar-nvim/sidebar.nvim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -35,7 +36,29 @@ let g:airline_powerline_fonts = 1
 let g:airline_skip_empty_sections = 1
 let g:airline_section_z = airline#section#create(["windowswap", "%3p%% "])
 
-if get(g:, "nvui", 0)
+" If the argument passed is a folder, set it as cwd.
+if argc() == 1 && isdirectory(argv(0))
+    cd `=argv(0)`
+endif
+
+if has("win32")
+    set shell=cmd
+    set shellcmdflag=/s\ /f:on\ /c
+endif
+
+if exists("g:neovide")
+    let g:neovide_floating_blur_amount_x = 4.0
+    let g:neovide_floating_blur_amount_y = 4.0
+    let g:neovide_scroll_animation_length = 0.3
+    let g:neovide_hide_mouse_when_typing = v:true
+    let g:neovide_refresh_rate = 144
+    let g:neovide_refresh_rate_idle = 10
+    let g:neovide_cursor_animate_in_insert_mode = v:true
+    let g:neovide_cursor_animate_command_line = v:true
+    let g:neovide_remember_window_size = v:true
+    set winblend=50
+    set pumblend=50
+elseif exists("g:nvui")
     NvuiCursorHideWhileTyping 1
     NvuiOpacity 1
     NvuiTitlebarBg #22272e
@@ -50,7 +73,7 @@ if get(g:, "nvui", 0)
     NvuiIMEDisable
 endif
 
-set guifont=Cousine\ NFM:h11
+set guifont=Cousine\ Nerd\ Font\ Mono:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
@@ -82,15 +105,9 @@ set path+=**
 set nofoldenable
 set shiftwidth=4
 set synmaxcol=1000
+set nobuflisted
+set fillchars=eob:\ 
 
-" Enable comments in JSON files
-autocmd FileType json syntax match Comment +\/\/.\+$+
-
-let g:detectindent_preferred_indent = 4
-augroup DetectIndent
-     autocmd!
-     autocmd BufReadPost * DetectIndent
-augroup END
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 " Custom commands
@@ -135,11 +152,10 @@ vnoremap ) ^
 tnoremap ç <C-\><C-n>
 nnoremap s :HopWord<CR>
 nnoremap S :HopLine<CR>
-inoremap <C-u> <esc>viwUea
+inoremap <C-u> <ESC>viwUea
 inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
-inoremap <S-TAB> <C-n>
-inoremap <C-TAB> <C-p>
+inoremap <C-BS> <ESC>diwa
 tnoremap <Esc> <C-\><C-n>
 nnoremap <C-Left> :vertical resize -15<CR>
 nnoremap <C-Right> :vertical resize +15<CR>
@@ -152,6 +168,33 @@ nnoremap <silent> <C-9> :cprevious<CR>
 nnoremap <silent> <C-0> :cnext<CR>
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
+
+" Tab navigation
+nnoremap <C-Tab> :tabn<CR>
+inoremap <C-Tab> <ESC>:tabn<CR>
+vnoremap <C-Tab> <ESC>:tabn<CR>
+nnoremap <C-S-Tab> :tabp<CR>
+inoremap <C-S-Tab> <ESC>:tabp<CR>
+vnoremap <C-S-Tab> <ESC>:tabp<CR>
+nnoremap <silent> <Leader>1 1gt
+vnoremap <silent> <Leader>1 <ESC>1gt
+nnoremap <silent> <Leader>2 2gt
+vnoremap <silent> <Leader>2 <ESC>2gt
+nnoremap <silent> <Leader>3 3gt
+vnoremap <silent> <Leader>3 <ESC>3gt
+nnoremap <silent> <Leader>4 4gt
+vnoremap <silent> <Leader>4 <ESC>4gt
+nnoremap <silent> <Leader>Q :tabc<CR>
+vnoremap <silent> <Leader>Q <ESC>:tabc<CR>
+
+" Session tab command
+function! NewSessionTab(path)
+    exec "tabnew ".a:path
+    if isdirectory(a:path)
+        exec "cd ".a:path
+    endif
+endfunction
+command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
 
 " Prevent netrw from remapping Ctrl+l
 function! NetrwMapping()
@@ -225,6 +268,7 @@ let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standar
 let g:ctrlp_use_caching = 0
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
+let g:netrw_fastbrowse = 0
 let g:ctrlp_by_filename = 1
 let g:gutentags_cache_dir = stdpath('data') . "/ctags"
 let g:cpp_attributes_highlight = 1
@@ -248,6 +292,8 @@ autocmd TermEnter term://*toggleterm#*
 " For example: 2<C-'> will open terminal 2
 nnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
 inoremap <silent><C-'> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
+nnoremap <silent><C-a> <Cmd>exe v:count1 . "ToggleTerm"<CR>
+inoremap <silent><C-a> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
 nnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
 inoremap <silent><C-1> <Esc><Cmd>exe "1ToggleTerm"<CR>
 nnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
@@ -306,6 +352,18 @@ endif
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
+
+autocmd VimEnter * call timer_start(250, { tid -> execute("SidebarNvimResize(100)") })
+" Enable comments in JSON files
+autocmd FileType json syntax match Comment +\/\/.\+$+
+" Wipe Netrw buffers on exit
+autocmd FileType netrw setl bufhidden=wipe
+
+let g:detectindent_preferred_indent = 4
+augroup DetectIndent
+     autocmd!
+     autocmd BufReadPost * DetectIndent
+augroup END
 
 " Call lua init
 exec "source " . stdpath('config') . "/lua_init.lua"
