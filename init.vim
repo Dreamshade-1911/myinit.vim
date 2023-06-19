@@ -21,29 +21,30 @@ Plug 'phaazon/hop.nvim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'posva/vim-vue'
-Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
-Plug 'ludovicchabant/vim-gutentags'
 Plug 'bfrg/vim-cpp-modern'
 Plug 'rluba/jai.vim'
-Plug 'sidebar-nvim/sidebar.nvim'
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-commentary'
+Plug 'mbbill/undotree'
+Plug 'Tetralux/odin.vim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
 colorscheme nord
 let g:airline_powerline_fonts = 1
 let g:airline_skip_empty_sections = 1
-let g:airline_section_z = airline#section#create(["windowswap", "%3p%% "])
+let g:airline_section_z = airline#section#create(['windowswap', 'obsession', 'linenr', 'maxlinenr', g:airline_symbols.space.':%c%V'])
+let g:airline#extensions#coc#enabled = 1
+
+if has("win32")
+    set shell=cmd.exe
+endif
 
 " If the argument passed is a folder, set it as cwd.
 if argc() == 1 && isdirectory(argv(0))
-    cd `=argv(0)`
-endif
-
-if has("win32")
-    set shell=cmd
-    set shellcmdflag=/s\ /f:on\ /c
+    tcd `=argv(0)`
 endif
 
 if exists("g:neovide")
@@ -79,7 +80,6 @@ set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
 set autoread
 set showmatch
-set expandtab
 set autoindent
 set wildmode=longest,list
 set timeoutlen=500
@@ -103,21 +103,47 @@ set ignorecase
 set smartcase
 set path+=**
 set nofoldenable
-set shiftwidth=4
 set synmaxcol=1000
 set nobuflisted
-set fillchars=eob:\ 
-
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set fillchars=eob:\ " Comment so we don't have trailing space.
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
-" Custom commands
-command! CdHere cd %:p:h
+" Tabline
+:set tabline=%!MyTabLine()
+function MyTabLine()
+    let s = ''
+    for i in range(tabpagenr('$'))
+        if i + 1 == tabpagenr()
+            let s ..= '%#TabLineSel#'
+        else
+            let s ..= '%#TabLine#'
+        endif
+        let s ..= '%' .. (i + 1) .. 'T'
+        let s ..= '  %{MyTabLabel(' .. (i + 1) .. ')}  '
+    endfor
+
+    " after the last tab fill with TabLineFill and reset tab page nr
+    let s ..= '%#TabLineFill#%T'
+
+    " right-align the label to close the current tab page
+    if tabpagenr('$') > 1
+        let s ..= '%=%#TabLine#%999Xclose'
+    endif
+
+    return s
+endfunction
+
+function MyTabLabel(n)
+    return fnamemodify(getcwd(-1, a:n), ":t")
+endfunction
 
 " Quick recursive grep
 augroup GrepQuickFix
     autocmd!
-    autocmd QuickFixCmdPost [^l]* botright cwindow 18
-    autocmd QuickFixCmdPost l* botright cwindow 18
+    autocmd QuickFixCmdPost * botright cwindow 18
 augroup END
 function! CustomGrep(str)
     if isdirectory("src")
@@ -132,14 +158,6 @@ function! CustomGrep(str)
 endfunction
 command! -nargs=* Grep call CustomGrep("<args>")
 
-" Simple scratch buffer
-function! Scratch()
-    vnew
-    noswapfile hide enew
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-endfunction
-
 " General remaps
 " map ç <C-c>
 " nmap ç a
@@ -150,32 +168,71 @@ endfunction
 nnoremap ) ^
 vnoremap ) ^
 tnoremap ç <C-\><C-n>
-nnoremap s :HopWord<CR>
-nnoremap S :HopLine<CR>
+nnoremap <silent> s :HopWord<CR>
+nnoremap <silent> S :HopLine<CR>
 inoremap <C-u> <ESC>viwUea
 inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
 inoremap <C-BS> <ESC>diwa
 tnoremap <Esc> <C-\><C-n>
-nnoremap <C-Left> :vertical resize -15<CR>
-nnoremap <C-Right> :vertical resize +15<CR>
+nnoremap <silent><C-Left> :vertical resize -15<CR>
+nnoremap <silent><C-Right> :vertical resize +15<CR>
 noremap <expr> j v:count ? "j" : "gj"
 noremap <expr> k v:count ? "k" : "gk"
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
-nnoremap <silent> <F5> :call Scratch()<CR>
-nnoremap <silent> <C-9> :cprevious<CR>
+inoremap <silent> <C-j> <ESC>2jdd2kpkdd=ja
+nnoremap <silent> <C-9> :cprev<CR>
+inoremap <silent> <C-9> <ESC>:cprev<CR>a
 nnoremap <silent> <C-0> :cnext<CR>
+inoremap <silent> <C-0> <ESC>:cnext<CR>a
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
+nnoremap <silent> <C--> :silent make\|redraw\|cw<CR>
+
+" Moving between windows
+tnoremap <A-h> <C-\><C-N><C-w>h
+tnoremap <A-j> <C-\><C-N><C-w>j
+tnoremap <A-k> <C-\><C-N><C-w>k
+tnoremap <A-l> <C-\><C-N><C-w>l
+inoremap <A-h> <C-\><C-N><C-w>h
+inoremap <A-j> <C-\><C-N><C-w>j
+inoremap <A-k> <C-\><C-N><C-w>k
+inoremap <A-l> <C-\><C-N><C-w>l
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
+" Leader keybinds
+nnoremap <Space> <Nop>
+let mapleader = "\<Space>"
+nnoremap <silent> <Leader><Leader> :source $MYVIMRC<CR>
+nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
+nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
+nnoremap <silent> <Leader>e :e %:h<CR>
+nnoremap <silent> <Leader>E :vs %:h<CR>
+nnoremap <silent> <Leader>p pkdd=j<CR>
+nnoremap <Leader>0 "0p
+nnoremap <Leader>) "0P
+nnoremap <silent> <Leader>w :w<CR>
+nnoremap <Leader>u :UndotreeToggle<CR>
+
+nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
+nmap <Leader>gu <Plug>(GitGutterUndoHunk)
+nmap <Leader>gs <Plug>(GitGutterStageHunk)
+xmap <Leader>gs <Plug>(GitGutterStageHunk)
+
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
 
 " Tab navigation
-nnoremap <C-Tab> :tabn<CR>
-inoremap <C-Tab> <ESC>:tabn<CR>
-vnoremap <C-Tab> <ESC>:tabn<CR>
-nnoremap <C-S-Tab> :tabp<CR>
-inoremap <C-S-Tab> <ESC>:tabp<CR>
-vnoremap <C-S-Tab> <ESC>:tabp<CR>
+nnoremap <silent> <C-Tab> :tabn<CR>
+inoremap <silent> <C-Tab> <ESC>:tabn<CR>
+vnoremap <silent> <C-Tab> <ESC>:tabn<CR>
+nnoremap <silent> <C-S-Tab> :tabp<CR>
+inoremap <silent> <C-S-Tab> <ESC>:tabp<CR>
+vnoremap <silent> <C-S-Tab> <ESC>:tabp<CR>
 nnoremap <silent> <Leader>1 1gt
 vnoremap <silent> <Leader>1 <ESC>1gt
 nnoremap <silent> <Leader>2 2gt
@@ -191,20 +248,10 @@ vnoremap <silent> <Leader>Q <ESC>:tabc<CR>
 function! NewSessionTab(path)
     exec "tabnew ".a:path
     if isdirectory(a:path)
-        exec "cd ".a:path
+        exec "tcd ".a:path
     endif
 endfunction
 command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
-
-" Prevent netrw from remapping Ctrl+l
-function! NetrwMapping()
-    nnoremap <buffer> <C-l> <C-w>l
-endfunction
-
-augroup netrw_mapping
-    autocmd!
-    autocmd filetype netrw call NetrwMapping()
-augroup END
 
 function! ToggleQuickFix()
     if empty(filter(getwininfo(), "v:val.quickfix"))
@@ -232,33 +279,6 @@ nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
-" Leader keybinds
-nnoremap <Space> <Nop>
-let mapleader = "\<Space>"
-nnoremap <silent> <Leader><Leader> :source $MYVIMRC<CR>
-nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
-nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
-nnoremap <silent> <Leader>s :vs<CR><C-w>l
-nnoremap <silent> <Leader>S <C-w>L
-nnoremap <silent> <Leader>q :q<CR>
-nnoremap <silent> <Leader>p :e %:h<CR>
-nnoremap <silent> <Leader>P :vs %:h<CR>
-nnoremap <silent> <Leader>0 "0p
-nnoremap <silent> <Leader>) "0P
-nnoremap <silent> <Leader>w :w<CR>
-nnoremap <Leader>h <C-w>h
-nnoremap <Leader>j <C-w>j
-nnoremap <Leader>k <C-w>k
-nnoremap <Leader>l <C-w>l
-
-nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
-nmap <Leader>gu <Plug>(GitGutterUndoHunk)
-nmap <Leader>gs <Plug>(GitGutterStageHunk)
-xmap <Leader>gs <Plug>(GitGutterStageHunk)
-
-xmap ga <Plug>(EasyAlign)
-nmap ga <Plug>(EasyAlign)
-
 " General plugin settings
 let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:ctrlp_cmd = "CtrlPLastMode"
@@ -270,10 +290,7 @@ let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:netrw_fastbrowse = 0
 let g:ctrlp_by_filename = 1
-let g:gutentags_cache_dir = stdpath('data') . "/ctags"
 let g:cpp_attributes_highlight = 1
-
-" Setup gitgutter
 let g:gitgutter_enabled = 1
 let g:gitgutter_signs = 0
 let g:gitgutter_highlight_linenrs = 1
@@ -284,16 +301,17 @@ hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
 " Setup ToggleTerm
-autocmd TermEnter term://*toggleterm#*
-      \ tnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
+" autocmd TermEnter term://*toggleterm#*
+tnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
+tnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
+tnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
+tnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
 
 " By applying the mappings this way you can pass a count to your
 " mapping to open a specific window.
 " For example: 2<C-'> will open terminal 2
 nnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
 inoremap <silent><C-'> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
-nnoremap <silent><C-a> <Cmd>exe v:count1 . "ToggleTerm"<CR>
-inoremap <silent><C-a> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
 nnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
 inoremap <silent><C-1> <Esc><Cmd>exe "1ToggleTerm"<CR>
 nnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
@@ -301,20 +319,18 @@ inoremap <silent><C-2> <Esc><Cmd>exe "2ToggleTerm"<CR>
 nnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
 inoremap <silent><C-3> <Esc><Cmd>exe "3ToggleTerm"<CR>
 
-" Build and run bindings
-nnoremap <silent><C--> <Cmd>make<CR>
-nnoremap <silent><F9> <Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
-inoremap <silent><F9> <Esc><Cmd>exe '1TermExec cmd="build"'<CR><C-w>ji
-nnoremap <silent><F10> <Cmd>exe '1TermExec cmd="run"'<CR><C-w>ji
-inoremap <silent><F10> <Esc><Cmd>exe '1TermExec cmd="run"'<CR><C-w>ji
-nnoremap <silent><F11> <Cmd>exe '1TermExec cmd="build && run"'<CR><C-w>ji
-inoremap <silent><F11> <Esc><Cmd>exe '1TermExec cmd="build && run"'<CR><C-w>ji
-
 " Setup CoC
 let g:coc_config_home = stdpath('config')
 
 inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
-nnoremap <silent> <C-h> :call CocActionAsync('doHover')<CR>
+nnoremap <silent> K :call ShowDocumentation()<CR>
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
@@ -353,11 +369,8 @@ endif
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
 
-autocmd VimEnter * call timer_start(250, { tid -> execute("SidebarNvimResize(100)") })
 " Enable comments in JSON files
 autocmd FileType json syntax match Comment +\/\/.\+$+
-" Wipe Netrw buffers on exit
-autocmd FileType netrw setl bufhidden=wipe
 
 let g:detectindent_preferred_indent = 4
 augroup DetectIndent

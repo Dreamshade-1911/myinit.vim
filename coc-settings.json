@@ -14,7 +14,6 @@
     "javascript.suggest.completeFunctionCalls": false,
     "html.autoClosingTags": false,
     "html.autoCreateQuotes": false,
-    "zig.zls.path": "C:\\Users\\ferna\\AppData\\Local\\coc\\extensions\\coc-zls-data\\zls_install\\zls.exe",
     "vetur.ignoreProjectWarning": true
 }
 
