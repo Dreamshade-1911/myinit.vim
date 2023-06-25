@@ -1,4 +1,4 @@
-require("hop").setup()
+require('leap').add_default_mappings()
 
 function TerminalOnOpen(terminal)
     vim.cmd("startinsert!")
@@ -18,7 +18,7 @@ require("toggleterm").setup{
     persist_mode = true,
     direction = "horizontal",
     close_on_exit = true,
-    shell = "cygwin.bat",
+    shell = vim.o.shell,
     float_ops = {
         border = "curved",
         winblend = 3,

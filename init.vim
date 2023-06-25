@@ -17,7 +17,6 @@ Plug 'airblade/vim-gitgutter'
 Plug 'roryokane/detectindent'
 Plug 'djoshea/vim-autoread'
 Plug 'lukas-reineke/indent-blankline.nvim'
-Plug 'phaazon/hop.nvim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'posva/vim-vue'
@@ -29,6 +28,7 @@ Plug 'tpope/vim-abolish'
 Plug 'tpope/vim-commentary'
 Plug 'mbbill/undotree'
 Plug 'Tetralux/odin.vim'
+Plug 'ggandor/leap.nvim'
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -37,10 +37,6 @@ let g:airline_powerline_fonts = 1
 let g:airline_skip_empty_sections = 1
 let g:airline_section_z = airline#section#create(['windowswap', 'obsession', 'linenr', 'maxlinenr', g:airline_symbols.space.':%c%V'])
 let g:airline#extensions#coc#enabled = 1
-
-if has("win32")
-    set shell=cmd.exe
-endif
 
 " If the argument passed is a folder, set it as cwd.
 if argc() == 1 && isdirectory(argv(0))
@@ -72,6 +68,11 @@ elseif exists("g:nvui")
     NvuiMoveAnimationFrametime 6.95
     NvuiSnapshotLimit 64
     NvuiIMEDisable
+endif
+
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+    set grepformat+=%f:%l:%c:%m
 endif
 
 set guifont=Cousine\ Nerd\ Font\ Mono:h11
@@ -140,23 +141,15 @@ function MyTabLabel(n)
     return fnamemodify(getcwd(-1, a:n), ":t")
 endfunction
 
-" Quick recursive grep
+" Custom grep
 augroup GrepQuickFix
     autocmd!
-    autocmd QuickFixCmdPost * botright cwindow 18
+    autocmd QuickFixCmdPost cgetexpr botright cwindow 18
 augroup END
-function! CustomGrep(str)
-    if isdirectory("src")
-        execute "vimgrep /\\C".a:str."/j src/**"
-    elseif isdirectory("scripts")
-        execute "vimgrep /\\C".a:str."/j scripts/**"
-    elseif isdirectory("app")
-        execute "vimgrep /\\C".a:str."/j app/**"
-    else
-        execute "vimgrep /\\C".a:str."/j **/*"
-    endif
+function! CustomGrep(...)
+    return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
-command! -nargs=* Grep call CustomGrep("<args>")
+command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
 
 " General remaps
 " map ç <C-c>
@@ -168,8 +161,6 @@ command! -nargs=* Grep call CustomGrep("<args>")
 nnoremap ) ^
 vnoremap ) ^
 tnoremap ç <C-\><C-n>
-nnoremap <silent> s :HopWord<CR>
-nnoremap <silent> S :HopLine<CR>
 inoremap <C-u> <ESC>viwUea
 inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
@@ -181,7 +172,6 @@ noremap <expr> j v:count ? "j" : "gj"
 noremap <expr> k v:count ? "k" : "gk"
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F4> @:<CR>
-inoremap <silent> <C-j> <ESC>2jdd2kpkdd=ja
 nnoremap <silent> <C-9> :cprev<CR>
 inoremap <silent> <C-9> <ESC>:cprev<CR>a
 nnoremap <silent> <C-0> :cnext<CR>
@@ -189,6 +179,14 @@ inoremap <silent> <C-0> <ESC>:cnext<CR>a
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
 nnoremap <silent> <C--> :silent make\|redraw\|cw<CR>
+nnoremap <PageDown> <C-d>
+inoremap <PageDown> <Esc><C-d>
+vnoremap <PageDown> <C-d>
+tnoremap <PageDown> <C-d>
+nnoremap <PageUp> <C-u>
+inoremap <PageUp> <Esc><C-u>
+vnoremap <PageUp> <C-u>
+tnoremap <PageUp> <C-u>
 
 " Moving between windows
 tnoremap <A-h> <C-\><C-N><C-w>h
