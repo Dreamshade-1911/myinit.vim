@@ -84,7 +84,7 @@ set showmatch
 set autoindent
 set wildmode=longest,list
 set timeoutlen=500
-set scrolloff=22
+set scrolloff=26
 set number
 set noswapfile
 set mouse=a
@@ -152,33 +152,34 @@ endfunction
 command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
 
 " General remaps
-" map ç <C-c>
-" nmap ç a
-" nmap Ç 0^
-" imap ç <Esc>
-" imap Ç <C-o>
-" vmap Ç 0^
+map ç <C-c>
+nmap ç a
+nmap Ç 0^
+imap ç <Esc>
+imap Ç <C-o>
+vmap Ç 0^
 nnoremap ) ^
 vnoremap ) ^
 tnoremap ç <C-\><C-n>
 inoremap <C-u> <ESC>viwUea
 inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
-inoremap <C-BS> <ESC>diwa
+inoremap <C-BS> <ESC>diwi
 tnoremap <Esc> <C-\><C-n>
 nnoremap <silent><C-Left> :vertical resize -15<CR>
 nnoremap <silent><C-Right> :vertical resize +15<CR>
 noremap <expr> j v:count ? "j" : "gj"
 noremap <expr> k v:count ? "k" : "gk"
-nnoremap <F1> :set ignorecase! ignorecase?<CR>
-nnoremap <silent> <F4> @:<CR>
-nnoremap <silent> <C-9> :cprev<CR>
-inoremap <silent> <C-9> <ESC>:cprev<CR>a
-nnoremap <silent> <C-0> :cnext<CR>
-inoremap <silent> <C-0> <ESC>:cnext<CR>a
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
-nnoremap <silent> <C--> :silent make\|redraw\|cw<CR>
+nnoremap <F1> :set ignorecase! ignorecase?<CR>
+nnoremap <silent> <F2> @:<CR>
+nnoremap <silent> <F9> :cprev<CR>
+inoremap <silent> <F9> <ESC>:cprev<CR>a
+nnoremap <silent> <F10> :cnext<CR>
+inoremap <silent> <F10> <ESC>:cnext<CR>a
+nnoremap <silent> <F11> :silent make\|redraw\|cw<CR>
+inoremap <silent> <F11> <Esc>:silent make\|redraw\|cw<CR>
 nnoremap <PageDown> <C-d>
 inoremap <PageDown> <Esc><C-d>
 vnoremap <PageDown> <C-d>
@@ -187,20 +188,6 @@ nnoremap <PageUp> <C-u>
 inoremap <PageUp> <Esc><C-u>
 vnoremap <PageUp> <C-u>
 tnoremap <PageUp> <C-u>
-
-" Moving between windows
-tnoremap <A-h> <C-\><C-N><C-w>h
-tnoremap <A-j> <C-\><C-N><C-w>j
-tnoremap <A-k> <C-\><C-N><C-w>k
-tnoremap <A-l> <C-\><C-N><C-w>l
-inoremap <A-h> <C-\><C-N><C-w>h
-inoremap <A-j> <C-\><C-N><C-w>j
-inoremap <A-k> <C-\><C-N><C-w>k
-inoremap <A-l> <C-\><C-N><C-w>l
-nnoremap <A-h> <C-w>h
-nnoremap <A-j> <C-w>j
-nnoremap <A-k> <C-w>k
-nnoremap <A-l> <C-w>l
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -242,6 +229,12 @@ vnoremap <silent> <Leader>4 <ESC>4gt
 nnoremap <silent> <Leader>Q :tabc<CR>
 vnoremap <silent> <Leader>Q <ESC>:tabc<CR>
 
+" Moving between windows
+nnoremap <Leader>h <C-w>h
+nnoremap <Leader>j <C-w>j
+nnoremap <Leader>k <C-w>k
+nnoremap <Leader>l <C-w>l
+
 " Session tab command
 function! NewSessionTab(path)
     exec "tabnew ".a:path
@@ -258,7 +251,7 @@ function! ToggleQuickFix()
         cclose
     endif
 endfunction
-nnoremap <silent> <C-8> :call ToggleQuickFix()<CR>
+nnoremap <silent> <F8> :call ToggleQuickFix()<CR>
 
 " Increase and decrease font size bindings
 nnoremap <C-Up> :silent! let &guifont = substitute(
@@ -375,6 +368,14 @@ augroup DetectIndent
      autocmd!
      autocmd BufReadPost * DetectIndent
 augroup END
+
+" Custom easy align delimiters
+let g:easy_align_delimiters = {
+\ '/': {
+\     'pattern':         '//\+\|/\*\|\*/',
+\     'delimiter_align': 'l',
+\     'ignore_groups':   ['!Comment'] },
+\ }
 
 " Call lua init
 exec "source " . stdpath('config') . "/lua_init.lua"
