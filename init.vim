@@ -29,6 +29,9 @@ Plug 'tpope/vim-commentary'
 Plug 'mbbill/undotree'
 Plug 'Tetralux/odin.vim'
 Plug 'ggandor/leap.nvim'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'ziglang/zig.vim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -66,7 +69,7 @@ elseif exists("g:nvui")
     NvuiCursorFrametime 6.95
     NvuiScrollFrametime 6.95
     NvuiMoveAnimationFrametime 6.95
-    NvuiSnapshotLimit 64
+    NvuiSnapshotLimit 128
     NvuiIMEDisable
 endif
 
@@ -146,7 +149,7 @@ augroup GrepQuickFix
     autocmd!
     autocmd QuickFixCmdPost cgetexpr botright cwindow 18
 augroup END
-function! CustomGrep(...)
+function CustomGrep(...)
     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
 command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
@@ -197,10 +200,11 @@ nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
 nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
 nnoremap <silent> <Leader>e :e %:h<CR>
 nnoremap <silent> <Leader>E :vs %:h<CR>
-nnoremap <silent> <Leader>p pkdd=j<CR>
+nnoremap <silent> <Leader>p pkdd
 nnoremap <Leader>0 "0p
 nnoremap <Leader>) "0P
 nnoremap <silent> <Leader>w :w<CR>
+nnoremap <silent> <Leader>q :q<CR>
 nnoremap <Leader>u :UndotreeToggle<CR>
 
 nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
@@ -235,8 +239,14 @@ nnoremap <Leader>j <C-w>j
 nnoremap <Leader>k <C-w>k
 nnoremap <Leader>l <C-w>l
 
+" Moving windows
+nnoremap <Leader>H <C-w>H
+nnoremap <Leader>J <C-w>J
+nnoremap <Leader>K <C-w>K
+nnoremap <Leader>L <C-w>L
+
 " Session tab command
-function! NewSessionTab(path)
+function NewSessionTab(path)
     exec "tabnew ".a:path
     if isdirectory(a:path)
         exec "tcd ".a:path
@@ -244,7 +254,7 @@ function! NewSessionTab(path)
 endfunction
 command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
 
-function! ToggleQuickFix()
+function ToggleQuickFix()
     if empty(filter(getwininfo(), "v:val.quickfix"))
         botright cwindow 18
     else
@@ -270,45 +280,92 @@ nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> 
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
+" CD Here command
+command! CdHere tcd %:p:h
+
 " General plugin settings
-let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "wra"
-let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+" let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
 let g:ctrlp_use_caching = 0
+let g:ctrlp_by_filename = 1
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:netrw_fastbrowse = 0
-let g:ctrlp_by_filename = 1
 let g:cpp_attributes_highlight = 1
 let g:gitgutter_enabled = 1
 let g:gitgutter_signs = 0
 let g:gitgutter_highlight_linenrs = 1
+let g:zig_fmt_autosave = 0
 set signcolumn=no
 hi! link GitGutterAddLineNr DiffAdd
 hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
-" Setup ToggleTerm
-" autocmd TermEnter term://*toggleterm#*
-tnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
-tnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
-tnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
-tnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
+" Setup ToggleTerm mappings
+function TermToggleSetup(timer_id)
+    let g:last_toggled_nonterm_winid = win_getid()
+    exec "ToggleTerm"
+    cal win_gotoid(g:last_toggled_nonterm_winid)
+endfunction
+autocmd! UIEnter * call timer_start(50, "TermToggleSetup")
 
-" By applying the mappings this way you can pass a count to your
-" mapping to open a specific window.
-" For example: 2<C-'> will open terminal 2
-nnoremap <silent><C-'> <Cmd>exe v:count1 . "ToggleTerm"<CR>
-inoremap <silent><C-'> <Esc><Cmd>exe v:count1 . "ToggleTerm"<CR>
-nnoremap <silent><C-1> <Cmd>exe "1ToggleTerm"<CR>
-inoremap <silent><C-1> <Esc><Cmd>exe "1ToggleTerm"<CR>
-nnoremap <silent><C-2> <Cmd>exe "2ToggleTerm"<CR>
-inoremap <silent><C-2> <Esc><Cmd>exe "2ToggleTerm"<CR>
-nnoremap <silent><C-3> <Cmd>exe "3ToggleTerm"<CR>
-inoremap <silent><C-3> <Esc><Cmd>exe "3ToggleTerm"<CR>
+function MyTermToggle(tnr)
+    let l:is_in_term = stridx(bufname(), "toggleterm::")
+
+    if a:tnr == 0
+        let l:search_term = "toggleterm::"
+    else
+        let l:search_term = "toggleterm::" . a:tnr
+    endif
+
+    if stridx(bufname(), l:search_term) != -1
+        call win_gotoid(g:last_toggled_nonterm_winid)
+        return
+    endif
+
+    for bufn in nvim_list_bufs()
+        let l:buffname = nvim_buf_get_name(bufn)
+        let l:buffwinid = bufwinid(l:buffname)
+
+        if l:buffwinid == -1
+            continue
+        endif
+
+        if stridx(l:buffname, l:search_term) != -1
+            if l:is_in_term == -1
+                let g:last_toggled_nonterm_winid = win_getid()
+            endif
+            call win_gotoid(l:buffwinid)
+            startinsert!
+            return
+        endif
+    endfor
+
+    if l:is_in_term == -1
+        let g:last_toggled_nonterm_winid = win_getid()
+    endif
+    exe a:tnr . "ToggleTerm"
+    startinsert!
+endfunction
+
+nnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+inoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+tnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+
+nnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+inoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+tnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+
+nnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+inoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+tnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+
+nnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+inoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+tnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
@@ -316,11 +373,11 @@ let g:coc_config_home = stdpath('config')
 inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
 nnoremap <silent> K :call ShowDocumentation()<CR>
 function! ShowDocumentation()
-  if CocAction('hasProvider', 'hover')
-    call CocActionAsync('doHover')
-  else
-    call feedkeys('K', 'in')
-  endif
+    if CocAction('hasProvider', 'hover')
+        call CocActionAsync('doHover')
+    else
+        call feedkeys('K', 'in')
+    endif
 endfunction
 
 " GoTo code navigation.

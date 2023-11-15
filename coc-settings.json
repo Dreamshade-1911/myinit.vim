@@ -1,4 +1,11 @@
 {
+    "languageserver": {
+        "odin": {
+            "command": "ols",
+            "filetypes": ["odin"],
+            "rootPatterns": ["ols.json"]
+        }
+    },
     "diagnostic.enable": true,
     "inlayHint.enable": false,
     "suggest.removeDuplicateItems": true,
@@ -13,7 +20,6 @@
     "typescript.suggest.completeFunctionCalls": false,
     "javascript.suggest.completeFunctionCalls": false,
     "html.autoClosingTags": false,
-    "html.autoCreateQuotes": false,
-    "vetur.ignoreProjectWarning": true
+    "html.autoCreateQuotes": false
 }
 

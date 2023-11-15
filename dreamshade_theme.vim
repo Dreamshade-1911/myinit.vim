@@ -7,6 +7,7 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if exists("g:nvui") || exists("g:neovide")
+        hi NormalInactive guibg=#08090A
         hi Normal guibg=#0F1214
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
@@ -85,11 +86,25 @@ function! SetCustomSyntax()
     syn match sSymbols "\.\|->\|=>"
 endfunction
 
+function! DreamshadeWindowEntered()
+    setlocal cursorline
+    if exists("g:nvui") || exists("g:neovide")
+        setlocal winhl=NormalInactive:Normal
+    endif
+endfunction
+
+function! DreamshadeWindowLeft()
+    setlocal nocursorline
+    if exists("g:nvui") || exists("g:neovide")
+        setlocal winhl=Normal:NormalInactive
+    endif
+endfunction
+
 augroup DreamshadeColorScheme
     autocmd!
     autocmd ColorScheme * call OverrideColorSchemes()
-    autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-    autocmd WinLeave * setlocal nocursorline
+    autocmd VimEnter,WinEnter,BufWinEnter * call DreamshadeWindowEntered()
+    autocmd WinLeave * call DreamshadeWindowLeft()
     autocmd Syntax * call SetCustomSyntax()
 augroup END
 
