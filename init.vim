@@ -32,6 +32,7 @@ Plug 'ggandor/leap.nvim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'ziglang/zig.vim'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
+
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
 
@@ -78,7 +79,7 @@ if executable('rg')
     set grepformat+=%f:%l:%c:%m
 endif
 
-set guifont=Cousine\ Nerd\ Font\ Mono:h11
+set guifont=FiraMono\ Nerd\ Font:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
@@ -117,7 +118,7 @@ set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,b
 
 " Tabline
 :set tabline=%!MyTabLine()
-function MyTabLine()
+function! MyTabLine()
     let s = ''
     for i in range(tabpagenr('$'))
         if i + 1 == tabpagenr()
@@ -140,7 +141,7 @@ function MyTabLine()
     return s
 endfunction
 
-function MyTabLabel(n)
+function! MyTabLabel(n)
     return fnamemodify(getcwd(-1, a:n), ":t")
 endfunction
 
@@ -149,7 +150,7 @@ augroup GrepQuickFix
     autocmd!
     autocmd QuickFixCmdPost cgetexpr botright cwindow 18
 augroup END
-function CustomGrep(...)
+function! CustomGrep(...)
     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
 command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
@@ -169,20 +170,22 @@ inoremap <S-CR> <ESC>O
 inoremap <C-CR> <ESC>F{a<CR><ESC>O
 inoremap <C-BS> <ESC>diwi
 tnoremap <Esc> <C-\><C-n>
-nnoremap <silent><C-Left> :vertical resize -15<CR>
-nnoremap <silent><C-Right> :vertical resize +15<CR>
+nnoremap <silent> <C-Left> <Cmd>vertical resize -15<CR>
+nnoremap <silent> <C-Right> <Cmd>vertical resize +15<CR>
 noremap <expr> j v:count ? "j" : "gj"
 noremap <expr> k v:count ? "k" : "gk"
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
 nnoremap <silent> <F2> @:<CR>
-nnoremap <silent> <F9> :cprev<CR>
-inoremap <silent> <F9> <ESC>:cprev<CR>a
-nnoremap <silent> <F10> :cnext<CR>
-inoremap <silent> <F10> <ESC>:cnext<CR>a
-nnoremap <silent> <F11> :silent make\|redraw\|cw<CR>
-inoremap <silent> <F11> <Esc>:silent make\|redraw\|cw<CR>
+nnoremap <silent> <F9> <Cmd>cprev<CR>
+inoremap <silent> <F9> <Cmd>cprev<CR>
+nnoremap <silent> <F10> <Cmd>cnext<CR>
+inoremap <silent> <F10> <Cmd>cnext<CR>
+nnoremap <silent> <F11> <Cmd>1TermExec cmd="make"<CR>
+inoremap <silent> <F11> <Cmd>1TermExec cmd="make"<CR>
+nnoremap <silent> <F12> <Cmd>1TermExec cmd="make build_and_run"<CR>
+inoremap <silent> <F12> <Cmd>1TermExec cmd="make build_and_run"<CR>
 nnoremap <PageDown> <C-d>
 inoremap <PageDown> <Esc><C-d>
 vnoremap <PageDown> <C-d>
@@ -191,6 +194,10 @@ nnoremap <PageUp> <C-u>
 inoremap <PageUp> <Esc><C-u>
 vnoremap <PageUp> <C-u>
 tnoremap <PageUp> <C-u>
+nnoremap <C-j> ddp
+inoremap <C-j> <Esc>ddpi
+nnoremap <C-k> ddkP
+inoremap <C-k> <Esc>ddkPi
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -246,7 +253,7 @@ nnoremap <Leader>K <C-w>K
 nnoremap <Leader>L <C-w>L
 
 " Session tab command
-function NewSessionTab(path)
+function! NewSessionTab(path)
     exec "tabnew ".a:path
     if isdirectory(a:path)
         exec "tcd ".a:path
@@ -254,7 +261,7 @@ function NewSessionTab(path)
 endfunction
 command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
 
-function ToggleQuickFix()
+function! ToggleQuickFix()
     if empty(filter(getwininfo(), "v:val.quickfix"))
         botright cwindow 18
     else
@@ -275,11 +282,6 @@ nnoremap <C-Down> :silent! let &guifont = substitute(
  \ '\=eval(submatch(0)-1)',
  \ '')<CR>
 
-" Output the current syntax group
-nnoremap <F12> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
-\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
-\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
-
 " CD Here command
 command! CdHere tcd %:p:h
 
@@ -287,9 +289,9 @@ command! CdHere tcd %:p:h
 let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "wra"
-" let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
 let g:ctrlp_use_caching = 0
-let g:ctrlp_by_filename = 1
+let g:ctrlp_by_filename = 0
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:netrw_fastbrowse = 0
@@ -304,15 +306,21 @@ hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
+" Wipe netrw buffers when leaving
+augroup netrw
+  autocmd!
+  autocmd FileType netrw setlocal bufhidden=wipe
+augroup end
+
 " Setup ToggleTerm mappings
-function TermToggleSetup(timer_id)
+function! TermToggleSetup(timer_id)
     let g:last_toggled_nonterm_winid = win_getid()
     exec "ToggleTerm"
     cal win_gotoid(g:last_toggled_nonterm_winid)
 endfunction
 autocmd! UIEnter * call timer_start(50, "TermToggleSetup")
 
-function MyTermToggle(tnr)
+function! MyTermToggle(tnr)
     let l:is_in_term = stridx(bufname(), "toggleterm::")
 
     if a:tnr == 0
@@ -351,6 +359,10 @@ function MyTermToggle(tnr)
     startinsert!
 endfunction
 
+nnoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
+inoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
+tnoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
+
 nnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
 inoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
 tnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
@@ -366,6 +378,8 @@ tnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
 nnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
 inoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
 tnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+
+command! -nargs=+ -bar Cmd TermExec cmd=<q-args>
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')

@@ -3,7 +3,8 @@
         "odin": {
             "command": "ols",
             "filetypes": ["odin"],
-            "rootPatterns": ["ols.json"]
+            "rootPatterns": ["ols.json"],
+            "args": ["-define:INTERNAL=true"]
         }
     },
     "diagnostic.enable": true,

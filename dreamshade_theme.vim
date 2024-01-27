@@ -7,8 +7,8 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if exists("g:nvui") || exists("g:neovide")
-        hi NormalInactive guibg=#08090A
-        hi Normal guibg=#0F1214
+        hi NormalInactive guibg=#07080A
+        hi Normal guibg=#090F11
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
 
@@ -77,12 +77,12 @@ endfunction
 
 function! SetCustomSyntax()
     match ExtraWhitespace /\s\+$/
-    " @ForThis: Setup notes like the one before <
-    syn match Todo /@\zs\%([A-Z].*\)\ze:/ containedin=.*Comment.*
+    " @For this: Setup notes like the one before in comments <
+    syn match Todo /@\zs\%([A-z0-9\-_\(\)\[\]{}]*\)\ze:/ containedin=.*Comment.*
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
-    syn keyword cStatement defer
+    syn keyword Statement defer
     syn match sSymbols "\.\|->\|=>"
 endfunction
 
