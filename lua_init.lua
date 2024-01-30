@@ -3,7 +3,7 @@ require("ibl").setup()
 
 function TerminalOnOpen(terminal)
     if terminal.id == 1 then
-        vim.cmd("wincmd H | vert resize 115")
+        vim.cmd("wincmd H | vert resize 120")
     end
 end
 

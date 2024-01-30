@@ -32,6 +32,7 @@ Plug 'ggandor/leap.nvim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'ziglang/zig.vim'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
+Plug 'arecarn/vim-crunch'
 
 " List ends here. plugins become visible to vim after this call.
 call plug#end()
@@ -207,6 +208,7 @@ nnoremap <silent> <Leader>' :e $MYVIMRC<CR>
 nnoremap <silent> <Leader>" :vs $MYVIMRC<CR>
 nnoremap <silent> <Leader>e :e %:h<CR>
 nnoremap <silent> <Leader>E :vs %:h<CR>
+nnoremap <silent> <Leader>. :e .<CR>
 nnoremap <silent> <Leader>p pkdd
 nnoremap <Leader>0 "0p
 nnoremap <Leader>) "0P
