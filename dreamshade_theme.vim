@@ -7,7 +7,7 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if exists("g:nvui") || exists("g:neovide")
-        hi NormalInactive guibg=#07080A
+        hi NormalInactive guibg=#06070A
         hi Normal guibg=#090F11
         hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif

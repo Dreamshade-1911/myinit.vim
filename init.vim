@@ -14,14 +14,13 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/vim-easy-align'
 Plug 'airblade/vim-gitgutter'
-Plug 'roryokane/detectindent'
+Plug 'Darazaki/indent-o-matic'
 Plug 'djoshea/vim-autoread'
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'posva/vim-vue'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'akinsho/toggleterm.nvim', {'tag' : '*'}
 Plug 'bfrg/vim-cpp-modern'
 Plug 'rluba/jai.vim'
 Plug 'tpope/vim-abolish'
@@ -114,37 +113,10 @@ set nobuflisted
 set tabstop=4
 set shiftwidth=4
 set expandtab
+set splitbelow
 set fillchars=eob:\ " Comment so we don't have trailing space.
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
-" Tabline
-:set tabline=%!MyTabLine()
-function! MyTabLine()
-    let s = ''
-    for i in range(tabpagenr('$'))
-        if i + 1 == tabpagenr()
-            let s ..= '%#TabLineSel#'
-        else
-            let s ..= '%#TabLine#'
-        endif
-        let s ..= '%' .. (i + 1) .. 'T'
-        let s ..= '  %{MyTabLabel(' .. (i + 1) .. ')}  '
-    endfor
-
-    " after the last tab fill with TabLineFill and reset tab page nr
-    let s ..= '%#TabLineFill#%T'
-
-    " right-align the label to close the current tab page
-    if tabpagenr('$') > 1
-        let s ..= '%=%#TabLine#%999Xclose'
-    endif
-
-    return s
-endfunction
-
-function! MyTabLabel(n)
-    return fnamemodify(getcwd(-1, a:n), ":t")
-endfunction
 
 " Custom grep
 augroup GrepQuickFix
@@ -155,6 +127,7 @@ function! CustomGrep(...)
     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
 command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
+
 
 " General remaps
 map ç <C-c>
@@ -178,15 +151,6 @@ noremap <expr> k v:count ? "k" : "gk"
 " Clear last search and reset syntax highlighting
 nnoremap <silent> <C-l> :let @/ = ""\|:mod\|:syntax sync fromstart<CR>
 nnoremap <F1> :set ignorecase! ignorecase?<CR>
-nnoremap <silent> <F2> @:<CR>
-nnoremap <silent> <F9> <Cmd>cprev<CR>
-inoremap <silent> <F9> <Cmd>cprev<CR>
-nnoremap <silent> <F10> <Cmd>cnext<CR>
-inoremap <silent> <F10> <Cmd>cnext<CR>
-nnoremap <silent> <F11> <Cmd>1TermExec cmd="make"<CR>
-inoremap <silent> <F11> <Cmd>1TermExec cmd="make"<CR>
-nnoremap <silent> <F12> <Cmd>1TermExec cmd="make build_and_run"<CR>
-inoremap <silent> <F12> <Cmd>1TermExec cmd="make build_and_run"<CR>
 nnoremap <PageDown> <C-d>
 inoremap <PageDown> <Esc><C-d>
 vnoremap <PageDown> <C-d>
@@ -199,6 +163,29 @@ nnoremap <C-j> ddp
 inoremap <C-j> <Esc>ddpi
 nnoremap <C-k> ddkP
 inoremap <C-k> <Esc>ddkPi
+
+function! ToggleQuickFix()
+    if empty(filter(getwininfo(), "v:val.quickfix"))
+        botright cwindow 18
+    else
+        cclose
+    endif
+endfunction
+
+nnoremap <silent> <F2> @:<CR>
+nnoremap <silent> <F8> :call ToggleQuickFix()<CR>
+nnoremap <silent> <F9> <Cmd>cprev<CR>
+inoremap <silent> <F9> <Cmd>cprev<CR>
+nnoremap <silent> <F10> <Cmd>cnext<CR>
+inoremap <silent> <F10> <Cmd>cnext<CR>
+nnoremap <silent> <F11> <Cmd>Cmd make<CR>
+inoremap <silent> <F11> <Cmd>Cmd make<CR>
+nnoremap <silent> <F12> <Cmd>Cmd make build_and_run<CR>
+inoremap <silent> <F12> <Cmd>Cmd make build_and_run<CR>
+
+" indentation jumping
+" noremap <silent> <C-[> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%<' . line('.') . 'l\S', 'be')<CR>
+" noremap <silent> <C-]> :call search('^'. matchstr(getline('.'), '\(^\s*\)') .'\%>' . line('.') . 'l\S', 'e')<CR>
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -224,7 +211,172 @@ xmap <Leader>gs <Plug>(GitGutterStageHunk)
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
-" Tab navigation
+" Moving between windows
+nnoremap <Leader>h <C-w>h
+nnoremap <Leader>j <C-w>j
+nnoremap <Leader>k <C-w>k
+nnoremap <Leader>l <C-w>l
+
+" Moving windows
+nnoremap <Leader>H <C-w>H
+nnoremap <Leader>J <C-w>J
+nnoremap <Leader>K <C-w>K
+nnoremap <Leader>L <C-w>L
+
+
+" Terminal Buffer stuff
+function! NewVerticalTerminal()
+    exec "vert lefta sp +term"
+endfunction
+function! NewHorizontalTerminal()
+    exec "sb +term"
+endfunction
+function! NewRightVerticalTerminal()
+    exec "vert sp +term"
+endfunction
+
+command! VTerm call NewVerticalTerminal()
+command! HTerm call NewHorizontalTerminal()
+command! RVTerm call NewRightVerticalTerminal()
+
+function! TimerVertTerm(timer_id)
+    call NewVerticalTerminal()
+    exec "wincmd p"
+endfunction
+
+function! NewTerminalEntered()
+    exec "setlocal nonumber | vert resize 130 | set wfw"
+    exec "keepalt file dreamterm::" . tabpagenr() . "::" . t:session_tab_term_index
+    let t:session_tab_term_index += 1
+endfunction
+
+augroup TabTerm
+    autocmd! UIEnter * call timer_start(50, "TimerVertTerm")
+    autocmd! TermOpen * call NewTerminalEntered()
+augroup END
+
+function! MyTermToggle(tnr)
+    let l:is_in_term = stridx(bufname(), "dreamterm::")
+
+    if a:tnr == 0
+        let l:search_term = "dreamterm::" . tabpagenr()
+    else
+        let l:search_term = "dreamterm::" . tabpagenr() . "::" . a:tnr
+    endif
+
+    if stridx(bufname(), l:search_term) != -1
+        call win_gotoid(t:last_toggled_nonterm_winid)
+        return
+    endif
+
+    for bufn in tabpagebuflist()
+        let l:buffname = nvim_buf_get_name(bufn)
+        let l:buffwinid = bufwinid(l:buffname)
+
+        if l:buffwinid == -1
+            continue
+        endif
+
+        if stridx(l:buffname, l:search_term) != -1
+            if l:is_in_term == -1
+                let t:last_toggled_nonterm_winid = win_getid()
+            endif
+            call win_gotoid(l:buffwinid)
+            startinsert!
+            return
+        endif
+    endfor
+
+    if l:is_in_term == -1
+        let t:last_toggled_nonterm_winid = win_getid()
+    endif
+endfunction
+
+nnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+inoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+tnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
+
+nnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+inoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+tnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
+
+nnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+inoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+tnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
+
+nnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+inoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+tnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
+
+function SendToFirstTerm(args)
+    for chan in nvim_list_chans()
+        if chan["mode"] != "terminal"
+            continue
+        endif
+
+        let l:buffn = chan["buffer"]
+        let l:buffname = nvim_buf_get_name(l:buffn)
+
+        let l:search_term = "dreamterm::" . tabpagenr()
+        if stridx(l:buffname, l:search_term) != -1
+            call chansend(chan["id"], a:args . "\<CR>")
+            break
+        endif
+    endfor
+endfunction
+command! -nargs=1 -complete=shellcmd Cmd call SendToFirstTerm(<q-args>)
+
+
+" Session-tab things
+function! MyTabLabel(n)
+    return fnamemodify(getcwd(-1, a:n), ":t")
+endfunction
+
+" Tabline
+function! MyTabLine()
+    let s = ''
+    for i in range(tabpagenr('$'))
+        if i + 1 == tabpagenr()
+            let s ..= '%#TabLineSel#'
+        else
+            let s ..= '%#TabLine#'
+        endif
+        let s ..= '%' .. (i + 1) .. 'T'
+        let s ..= '  %{MyTabLabel(' .. (i + 1) .. ')}  '
+    endfor
+
+    " after the last tab fill with TabLineFill and reset tab page nr
+    let s ..= '%#TabLineFill#%T'
+
+    " right-align the label to close the current tab page
+    if tabpagenr('$') > 1
+        let s ..= '%=%#TabLine#%999Xclose'
+    endif
+
+    return s
+endfunction
+:set tabline=%!MyTabLine()
+
+let t:session_tab_term_index = 1
+function! NewSessionTabEntered()
+    let t:session_tab_term_index = 1
+    let t:last_toggled_term_winid = 1
+    let t:last_toggled_nonterm_winid = win_getid()
+endfunction
+
+augroup SessionTab
+    autocmd! TabNew * call NewSessionTabEntered()
+augroup END
+
+function! NewSessionTab(path)
+    exec "$tabnew ".a:path
+    if isdirectory(a:path)
+        exec "tcd ".a:path
+    endif
+    exec timer_start(50, "TimerVertTerm")
+endfunction
+command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
+
 nnoremap <silent> <C-Tab> :tabn<CR>
 inoremap <silent> <C-Tab> <ESC>:tabn<CR>
 vnoremap <silent> <C-Tab> <ESC>:tabn<CR>
@@ -242,35 +394,6 @@ vnoremap <silent> <Leader>4 <ESC>4gt
 nnoremap <silent> <Leader>Q :tabc<CR>
 vnoremap <silent> <Leader>Q <ESC>:tabc<CR>
 
-" Moving between windows
-nnoremap <Leader>h <C-w>h
-nnoremap <Leader>j <C-w>j
-nnoremap <Leader>k <C-w>k
-nnoremap <Leader>l <C-w>l
-
-" Moving windows
-nnoremap <Leader>H <C-w>H
-nnoremap <Leader>J <C-w>J
-nnoremap <Leader>K <C-w>K
-nnoremap <Leader>L <C-w>L
-
-" Session tab command
-function! NewSessionTab(path)
-    exec "tabnew ".a:path
-    if isdirectory(a:path)
-        exec "tcd ".a:path
-    endif
-endfunction
-command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
-
-function! ToggleQuickFix()
-    if empty(filter(getwininfo(), "v:val.quickfix"))
-        botright cwindow 18
-    else
-        cclose
-    endif
-endfunction
-nnoremap <silent> <F8> :call ToggleQuickFix()<CR>
 
 " Increase and decrease font size bindings
 nnoremap <C-Up> :silent! let &guifont = substitute(
@@ -287,7 +410,9 @@ nnoremap <C-Down> :silent! let &guifont = substitute(
 " CD Here command
 command! CdHere tcd %:p:h
 
+
 " General plugin settings
+let g:plug_window = "vertical new"
 let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
 let g:ctrlp_working_path_mode = "wra"
@@ -307,81 +432,6 @@ hi! link GitGutterAddLineNr DiffAdd
 hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
-
-" Wipe netrw buffers when leaving
-augroup netrw
-  autocmd!
-  autocmd FileType netrw setlocal bufhidden=wipe
-augroup end
-
-" Setup ToggleTerm mappings
-function! TermToggleSetup(timer_id)
-    let g:last_toggled_nonterm_winid = win_getid()
-    exec "ToggleTerm"
-    cal win_gotoid(g:last_toggled_nonterm_winid)
-endfunction
-autocmd! UIEnter * call timer_start(50, "TermToggleSetup")
-
-function! MyTermToggle(tnr)
-    let l:is_in_term = stridx(bufname(), "toggleterm::")
-
-    if a:tnr == 0
-        let l:search_term = "toggleterm::"
-    else
-        let l:search_term = "toggleterm::" . a:tnr
-    endif
-
-    if stridx(bufname(), l:search_term) != -1
-        call win_gotoid(g:last_toggled_nonterm_winid)
-        return
-    endif
-
-    for bufn in nvim_list_bufs()
-        let l:buffname = nvim_buf_get_name(bufn)
-        let l:buffwinid = bufwinid(l:buffname)
-
-        if l:buffwinid == -1
-            continue
-        endif
-
-        if stridx(l:buffname, l:search_term) != -1
-            if l:is_in_term == -1
-                let g:last_toggled_nonterm_winid = win_getid()
-            endif
-            call win_gotoid(l:buffwinid)
-            startinsert!
-            return
-        endif
-    endfor
-
-    if l:is_in_term == -1
-        let g:last_toggled_nonterm_winid = win_getid()
-    endif
-    exe a:tnr . "ToggleTerm"
-    startinsert!
-endfunction
-
-nnoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
-inoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
-tnoremap <silent> <C-q> <Cmd>exe "ToggleTermToggleAll"<CR>
-
-nnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
-inoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
-tnoremap <C-'> <Cmd>call MyTermToggle(0)<CR>
-
-nnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
-inoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
-tnoremap <C-1> <Cmd>call MyTermToggle(1)<CR>
-
-nnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
-inoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
-tnoremap <C-2> <Cmd>call MyTermToggle(2)<CR>
-
-nnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
-inoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
-tnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
-
-command! -nargs=+ -bar Cmd TermExec cmd=<q-args>
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
@@ -435,12 +485,6 @@ command! -nargs=0 Format :call CocAction("format")
 
 " Enable comments in JSON files
 autocmd FileType json syntax match Comment +\/\/.\+$+
-
-let g:detectindent_preferred_indent = 4
-augroup DetectIndent
-     autocmd!
-     autocmd BufReadPost * DetectIndent
-augroup END
 
 " Custom easy align delimiters
 let g:easy_align_delimiters = {
