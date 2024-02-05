@@ -4,36 +4,31 @@ syntax enable
 set termguicolors
 exec "source " . stdpath('config') . "/dreamshade_theme.vim"
 
-" Plugins will be downloaded under the specified directory.
 call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
-
-" Declare the list of plugins.
-Plug 'arcticicestudio/nord-vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'tpope/vim-fugitive'
-Plug 'junegunn/vim-easy-align'
-Plug 'airblade/vim-gitgutter'
-Plug 'Darazaki/indent-o-matic'
-Plug 'djoshea/vim-autoread'
-Plug 'lukas-reineke/indent-blankline.nvim'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'tikhomirov/vim-glsl'
-Plug 'posva/vim-vue'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'bfrg/vim-cpp-modern'
-Plug 'rluba/jai.vim'
-Plug 'tpope/vim-abolish'
-Plug 'tpope/vim-commentary'
-Plug 'mbbill/undotree'
-Plug 'Tetralux/odin.vim'
-Plug 'ggandor/leap.nvim'
-Plug 'editorconfig/editorconfig-vim'
-Plug 'ziglang/zig.vim'
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
-Plug 'arecarn/vim-crunch'
-
-" List ends here. plugins become visible to vim after this call.
+    Plug 'arcticicestudio/nord-vim'
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'tpope/vim-fugitive'
+    Plug 'junegunn/vim-easy-align'
+    Plug 'airblade/vim-gitgutter'
+    Plug 'Darazaki/indent-o-matic'
+    Plug 'djoshea/vim-autoread'
+    Plug 'lukas-reineke/indent-blankline.nvim'
+    Plug 'ctrlpvim/ctrlp.vim'
+    Plug 'tikhomirov/vim-glsl', { 'for': ['vert', 'tesc', 'tese', 'geom', 'frag', 'comp'] }
+    Plug 'posva/vim-vue', { 'for': ['vue'] }
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'bfrg/vim-cpp-modern', { 'for': ['cpp', 'cxx', 'h', 'hpp'] }
+    Plug 'rluba/jai.vim', { 'for': ['jai'] }
+    Plug 'tpope/vim-abolish'
+    Plug 'tpope/vim-commentary'
+    Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
+    Plug 'Tetralux/odin.vim', { 'for': ['odin'] }
+    Plug 'ggandor/leap.nvim'
+    Plug 'editorconfig/editorconfig-vim'
+    Plug 'ziglang/zig.vim', { 'for': ['zig'] }
+    Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install', 'for': ['markdown', 'vim-plug'], 'on': 'MarkdownPreview' }
+    Plug 'arecarn/vim-crunch', { 'on': 'Crunch' }
 call plug#end()
 
 colorscheme nord
@@ -41,6 +36,7 @@ let g:airline_powerline_fonts = 1
 let g:airline_skip_empty_sections = 1
 let g:airline_section_z = airline#section#create(['windowswap', 'obsession', 'linenr', 'maxlinenr', g:airline_symbols.space.':%c%V'])
 let g:airline#extensions#coc#enabled = 1
+let g:airline#extensions#whitespace#mixed_indent_algo = 2
 
 " If the argument passed is a folder, set it as cwd.
 if argc() == 1 && isdirectory(argv(0))
@@ -50,7 +46,7 @@ endif
 if exists("g:neovide")
     let g:neovide_floating_blur_amount_x = 4.0
     let g:neovide_floating_blur_amount_y = 4.0
-    let g:neovide_scroll_animation_length = 0.3
+    let g:neovide_scroll_animation_length = 0.08
     let g:neovide_hide_mouse_when_typing = v:true
     let g:neovide_refresh_rate = 144
     let g:neovide_refresh_rate_idle = 10
@@ -64,9 +60,9 @@ elseif exists("g:nvui")
     NvuiOpacity 1
     NvuiTitlebarBg #22272e
     NvuiTitlebarFontSize 11
-    NvuiCursorAnimationDuration 0.15
-    NvuiScrollAnimationDuration 0.3
-    NvuiMoveAnimationDuration 0.3
+    NvuiCursorAnimationDuration 0.1
+    NvuiScrollAnimationDuration 0.2
+    NvuiMoveAnimationDuration 0.2
     NvuiCursorFrametime 6.95
     NvuiScrollFrametime 6.95
     NvuiMoveAnimationFrametime 6.95
@@ -127,6 +123,9 @@ function! CustomGrep(...)
     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
 command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
+
+" Enable comments in JSON files
+autocmd FileType json syntax match Comment +\/\/.\+$+
 
 
 " General remaps
@@ -245,13 +244,13 @@ function! TimerVertTerm(timer_id)
 endfunction
 
 function! NewTerminalEntered()
-    exec "setlocal nonumber | vert resize 130 | set wfw"
+    exec "setlocal nonumber | vert resize 115 | set wfw"
     exec "keepalt file dreamterm::" . tabpagenr() . "::" . t:session_tab_term_index
     let t:session_tab_term_index += 1
 endfunction
 
 augroup TabTerm
-    autocmd! UIEnter * call timer_start(50, "TimerVertTerm")
+    autocmd! UIEnter * call timer_start(100, "TimerVertTerm")
     autocmd! TermOpen * call NewTerminalEntered()
 augroup END
 
@@ -427,11 +426,20 @@ let g:gitgutter_enabled = 1
 let g:gitgutter_signs = 0
 let g:gitgutter_highlight_linenrs = 1
 let g:zig_fmt_autosave = 0
+let g:undotree_WindowLayout = 3
 set signcolumn=no
 hi! link GitGutterAddLineNr DiffAdd
 hi! link GitGutterChangeLineNr DiffChange
 hi! link GitGutterDeleteLineNr DiffDelete
 hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
+
+" Custom easy align delimiters
+let g:easy_align_delimiters = {
+\ '/': {
+\     'pattern':         '//\+\|/\*\|\*/',
+\     'delimiter_align': 'l',
+\     'ignore_groups':   ['!Comment'] },
+\ }
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
@@ -482,17 +490,6 @@ endif
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
-
-" Enable comments in JSON files
-autocmd FileType json syntax match Comment +\/\/.\+$+
-
-" Custom easy align delimiters
-let g:easy_align_delimiters = {
-\ '/': {
-\     'pattern':         '//\+\|/\*\|\*/',
-\     'delimiter_align': 'l',
-\     'ignore_groups':   ['!Comment'] },
-\ }
 
 " Call lua init
 exec "source " . stdpath('config') . "/lua_init.lua"
