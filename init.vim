@@ -1,13 +1,11 @@
 set nocompatible
+set termguicolors
 filetype plugin on
 syntax enable
-set termguicolors
-exec "source " . stdpath('config') . "/dreamshade_theme.vim"
 
 call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
     Plug 'arcticicestudio/nord-vim'
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
+    Plug 'nvim-lualine/lualine.nvim'
     Plug 'tpope/vim-fugitive'
     Plug 'junegunn/vim-easy-align'
     Plug 'airblade/vim-gitgutter'
@@ -31,30 +29,24 @@ call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
     Plug 'arecarn/vim-crunch', { 'on': 'Crunch' }
 call plug#end()
 
-colorscheme nord
-let g:airline_powerline_fonts = 1
-let g:airline_skip_empty_sections = 1
-let g:airline_section_z = airline#section#create(['windowswap', 'obsession', 'linenr', 'maxlinenr', g:airline_symbols.space.':%c%V'])
-let g:airline#extensions#coc#enabled = 1
-let g:airline#extensions#whitespace#mixed_indent_algo = 2
-
-" If the argument passed is a folder, set it as cwd.
-if argc() == 1 && isdirectory(argv(0))
-    tcd `=argv(0)`
-endif
+exec "source " . stdpath('config') . "/lua_init.lua"
+exec "source " . stdpath('config') . "/dreamshade_theme.vim"
 
 if exists("g:neovide")
-    let g:neovide_floating_blur_amount_x = 4.0
-    let g:neovide_floating_blur_amount_y = 4.0
-    let g:neovide_scroll_animation_length = 0.08
-    let g:neovide_hide_mouse_when_typing = v:true
+    let g:neovide_padding_left = 5
+    let g:neovide_padding_right = 5
+    let g:neovide_padding_top = 5
+    let g:neovide_padding_bottom = 0
     let g:neovide_refresh_rate = 144
-    let g:neovide_refresh_rate_idle = 10
+    let g:neovide_refresh_rate_idle = 14
+    let g:neovide_hide_mouse_when_typing = v:true
+    let g:neovide_scroll_animation_far_lines = 9999
+    let g:neovide_scroll_animation_length = 0.1
     let g:neovide_cursor_animate_in_insert_mode = v:true
     let g:neovide_cursor_animate_command_line = v:true
+    let g:neovide_cursor_animation_length = 0.1
+    let g:neovide_cursor_trail_size = 0.5
     let g:neovide_remember_window_size = v:true
-    set winblend=50
-    set pumblend=50
 elseif exists("g:nvui")
     NvuiCursorHideWhileTyping 1
     NvuiOpacity 1
@@ -110,15 +102,13 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set splitbelow
-set fillchars=eob:\ " Comment so we don't have trailing space.
+set fillchars+=vert:\ " Comment so we don't have trailing space.
+set fillchars+=eob:\ " Comment
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,bin_client,bin_server,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 
 " Custom grep
-augroup GrepQuickFix
-    autocmd!
-    autocmd QuickFixCmdPost cgetexpr botright cwindow 18
-augroup END
+augroup GrepQuickFix | autocmd! QuickFixCmdPost cgetexpr botright cwindow 18
 function! CustomGrep(...)
     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
@@ -200,7 +190,7 @@ nnoremap <Leader>0 "0p
 nnoremap <Leader>) "0P
 nnoremap <silent> <Leader>w :w<CR>
 nnoremap <silent> <Leader>q :q<CR>
-nnoremap <Leader>u :UndotreeToggle<CR>
+nnoremap <silent><Leader>u :UndotreeToggle<CR>
 
 nmap <Leader>gp <Plug>(GitGutterPreviewHunk)
 nmap <Leader>gu <Plug>(GitGutterUndoHunk)
@@ -241,6 +231,7 @@ command! RVTerm call NewRightVerticalTerminal()
 function! TimerVertTerm(timer_id)
     call NewVerticalTerminal()
     exec "wincmd p"
+    let t:last_toggled_nonterm_winid = win_getid()
 endfunction
 
 function! NewTerminalEntered()
@@ -249,10 +240,7 @@ function! NewTerminalEntered()
     let t:session_tab_term_index += 1
 endfunction
 
-augroup TabTerm
-    autocmd! UIEnter * call timer_start(100, "TimerVertTerm")
-    autocmd! TermOpen * call NewTerminalEntered()
-augroup END
+augroup TabTerm | autocmd! TermOpen * call NewTerminalEntered()
 
 function! MyTermToggle(tnr)
     let l:is_in_term = stridx(bufname(), "dreamterm::")
@@ -308,6 +296,9 @@ inoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
 tnoremap <C-3> <Cmd>call MyTermToggle(3)<CR>
 
 function SendToFirstTerm(args)
+    let l:openbufs = tabpagebuflist()
+    let l:handled = 0
+
     for chan in nvim_list_chans()
         if chan["mode"] != "terminal"
             continue
@@ -318,7 +309,15 @@ function SendToFirstTerm(args)
 
         let l:search_term = "dreamterm::" . tabpagenr()
         if stridx(l:buffname, l:search_term) != -1
-            call chansend(chan["id"], a:args . "\<CR>")
+            for tbuff in l:openbufs
+                if tbuff == l:buffn
+                    call chansend(chan["id"], a:args . "\<CR>")
+                    let l:handled = 1
+                    break
+                endif
+            endfor
+        endif
+        if l:handled == 1
             break
         endif
     endfor
@@ -328,51 +327,60 @@ command! -nargs=1 -complete=shellcmd Cmd call SendToFirstTerm(<q-args>)
 
 " Session-tab things
 function! MyTabLabel(n)
-    return fnamemodify(getcwd(-1, a:n), ":t")
+    return  a:n . ": " . fnamemodify(getcwd(-1, a:n), ":t")
 endfunction
 
 " Tabline
 function! MyTabLine()
     let s = ''
-    for i in range(tabpagenr('$'))
+    for i in range(tabpagenr("$"))
         if i + 1 == tabpagenr()
-            let s ..= '%#TabLineSel#'
+            let s ..= "%#TabLineSel#"
         else
-            let s ..= '%#TabLine#'
+            let s ..= "%#TabLine#"
         endif
-        let s ..= '%' .. (i + 1) .. 'T'
-        let s ..= '  %{MyTabLabel(' .. (i + 1) .. ')}  '
+        let s ..= "%" . (i + 1) . "T"
+        let s ..= " %{MyTabLabel(" . (i + 1) . ")}  "
     endfor
 
     " after the last tab fill with TabLineFill and reset tab page nr
-    let s ..= '%#TabLineFill#%T'
+    let s ..= "%#TabLineFill#%T"
 
     " right-align the label to close the current tab page
-    if tabpagenr('$') > 1
-        let s ..= '%=%#TabLine#%999Xclose'
+    if tabpagenr("$") > 1
+        let s ..= "%=%#TabLine#%999X close "
     endif
 
     return s
 endfunction
 :set tabline=%!MyTabLine()
 
-let t:session_tab_term_index = 1
+if argc() == 1 && isdirectory(argv(0))
+    let s:session_tab_cwd_target = argv(0)
+else
+    let s:session_tab_cwd_target = getcwd()
+endif
+
 function! NewSessionTabEntered()
+    exec "tcd " . s:session_tab_cwd_target
     let t:session_tab_term_index = 1
     let t:last_toggled_term_winid = 1
     let t:last_toggled_nonterm_winid = win_getid()
+    exec timer_start(50, "TimerVertTerm")
+endfunction
+
+function! TimerNewSessionTabEntered(timerid)
+    call NewSessionTabEntered()
 endfunction
 
 augroup SessionTab
     autocmd! TabNew * call NewSessionTabEntered()
+    autocmd! UIEnter * call timer_start(100, "TimerNewSessionTabEntered")
 augroup END
 
 function! NewSessionTab(path)
+    let s:session_tab_cwd_target = a:path
     exec "$tabnew ".a:path
-    if isdirectory(a:path)
-        exec "tcd ".a:path
-    endif
-    exec timer_start(50, "TimerVertTerm")
 endfunction
 command! -nargs=1 -complete=dir Tab call NewSessionTab(<q-args>)
 
@@ -407,17 +415,19 @@ nnoremap <C-Down> :silent! let &guifont = substitute(
  \ '')<CR>
 
 " CD Here command
-command! CdHere tcd %:p:h
+command! Cdhere tcd %:p:h
 
 
 " General plugin settings
-let g:plug_window = "vertical new"
+if has("win32")
+    let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+endif
 let g:ctrlp_cmd = "CtrlPLastMode"
 let g:ctrlp_map = "<C-p>"
-let g:ctrlp_working_path_mode = "wra"
-let g:ctrlp_user_command = [".git", "cd %s && git ls-files -co --exclude-standard"]
+let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_use_caching = 0
 let g:ctrlp_by_filename = 0
+let g:plug_window = "vertical new"
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:netrw_fastbrowse = 0
@@ -428,10 +438,6 @@ let g:gitgutter_highlight_linenrs = 1
 let g:zig_fmt_autosave = 0
 let g:undotree_WindowLayout = 3
 set signcolumn=no
-hi! link GitGutterAddLineNr DiffAdd
-hi! link GitGutterChangeLineNr DiffChange
-hi! link GitGutterDeleteLineNr DiffDelete
-hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 
 " Custom easy align delimiters
 let g:easy_align_delimiters = {
@@ -491,5 +497,3 @@ endif
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
 
-" Call lua init
-exec "source " . stdpath('config') . "/lua_init.lua"

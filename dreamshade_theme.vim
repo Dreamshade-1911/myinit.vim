@@ -7,10 +7,16 @@ function! OverrideColorSchemes()
     hi link ExtraWhitespace Error
 
     if exists("g:nvui") || exists("g:neovide")
-        hi NormalInactive guibg=#040709
-        hi Normal guibg=#0A0F13
-        hi CursorLine guibg=#252930 guifg=NONE ctermbg=NONE ctermfg=NONE
+        hi Normal guibg=#061214
+        hi NormalActive guibg=#091B1F
+        hi CursorLine guibg=#132C30 guifg=NONE ctermbg=NONE ctermfg=NONE
     endif
+
+    hi TabLineFill guibg=#091B1F
+    hi TabLine guifg=#82DDD9 guibg=#132C30
+    hi TabLineSel guifg=#101010 guibg=#55C08E
+
+    hi VertSplit guibg=#112A2E
 
     hi NonText guibg=NONE ctermbg=NONE
 
@@ -73,12 +79,17 @@ function! OverrideColorSchemes()
 
     hi Todo guifg=#E3B749 gui=underline,bold
     hi NoCheckin guifg=#EE1010 gui=underline,bold
+
+    hi! link GitGutterAddLineNr DiffAdd
+    hi! link GitGutterChangeLineNr DiffChange
+    hi! link GitGutterDeleteLineNr DiffDelete
+    hi! link GitGutterChangeDeleteLineNr DiffChangeDelete
 endfunction
 
 function! SetCustomSyntax()
     match ExtraWhitespace /\s\+$/
     " @For this: Setup notes like the one before in comments <
-    syn match Todo /@\zs\%([A-z0-9\-_\(\)\[\]{}]*\)\ze:/ containedin=.*Comment.*
+    syn match Todo /@[A-z0-9\-_\(\)\[\]{} ]*:/ containedin=.*Comment
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
@@ -89,14 +100,14 @@ endfunction
 function! DreamshadeWindowEntered()
     setlocal cursorline
     if exists("g:nvui") || exists("g:neovide")
-        setlocal winhl=NormalInactive:Normal
+        setlocal winhl=Normal:NormalActive
     endif
 endfunction
 
 function! DreamshadeWindowLeft()
     setlocal nocursorline
     if exists("g:nvui") || exists("g:neovide")
-        setlocal winhl=Normal:NormalInactive
+        setlocal winhl=NormalActive:Normal
     endif
 endfunction
 
@@ -108,3 +119,4 @@ augroup DreamshadeColorScheme
     autocmd Syntax * call SetCustomSyntax()
 augroup END
 
+colorscheme nord
