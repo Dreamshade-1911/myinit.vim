@@ -15,8 +15,8 @@
         "rounded": true,
         "winblend": 10
     },
-    "colors.enable": true,
-    "semanticTokens.enable": true,
+    "colors.enable": false,
+    "semanticTokens.enable": false,
     "typescript.suggest.completeFunctionCalls": false,
     "javascript.suggest.completeFunctionCalls": false,
     "html.autoClosingTags": false,

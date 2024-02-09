@@ -18,7 +18,7 @@ local colors = {
     lightg    = "#132C30",
     vibrantg  = "#55C08E",
     black     = "#101010",
-    green     = "#2EB8A6",
+    green     = "#27CCAE",
     lightblue = "#82DDD9",
 }
 local theme = {

@@ -1,81 +1,101 @@
 " This just changes a few colors from the Nord theme
 function! OverrideColorSchemes()
-    hi Normal guifg=#DBCAA4 guibg=NONE ctermbg=NONE
-    hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE
-    hi CursorLineNr guibg=#BCC7DA guifg=#101010 gui=bold ctermfg=NONE
+    let l:ident            = "#FFFFFF"
+    let l:normal           = "#DBCAA4"
+    let l:selected         = "#BCC7DA"
+    let l:deselected       = "#101010"
+    let l:dark_background  = "#061214"
+    let l:background       = "#091B1F"
+    let l:light_background = "#132C30"
+    let l:constant         = "#7EE6E1"
+    let l:string           = "#21C2A5"
+    let l:type             = "#3EC984"
+    let l:comment          = "#67B32E"
+
+    exec "hi Normal guifg=" . l:normal " guibg=NONE ctermbg=NONE"
+    exec "hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE"
+    exec "hi CursorLineNr guibg=" . l:selected . " guifg= " . l:deselected . " gui=bold ctermfg=NONE"
+
+    exec "hi StatusLine guibg=" . l:background
+    exec "hi StatusLineNC guibg=" . l:background
 
     hi link ExtraWhitespace Error
 
     if exists("g:nvui") || exists("g:neovide")
-        hi Normal guibg=#061214
-        hi NormalActive guibg=#091B1F
-        hi CursorLine guibg=#132C30 guifg=NONE ctermbg=NONE ctermfg=NONE
+        exec "hi Normal guibg=" . l:dark_background
+        exec "hi NormalActive guibg=" . l:background
+        exec "hi CursorLine guibg=" . l:light_background . " guifg=NONE ctermbg=NONE ctermfg=NONE"
     endif
 
-    hi TabLineFill guibg=#091B1F
-    hi TabLine guifg=#82DDD9 guibg=#132C30
-    hi TabLineSel guifg=#101010 guibg=#55C08E
+    exec "hi TabLineFill guibg=" . l:background
+    exec "hi TabLine guifg=#82DDD9 guibg=" . l:light_background
+    exec "hi TabLineSel guifg=#101010 guibg=" . l:type
 
-    hi VertSplit guibg=#112A2E
+    exec "hi CurSearch guifg=" . l:deselected . " guibg=" . l:constant
+    exec "hi MatchParen guifg=" . l:deselected . " guibg=" . l:selected
+    exec "hi Visual guifg=" . l:deselected . " guibg=" . l:selected
+    exec "hi Search guifg=" . l:deselected . " guibg=" . l:selected
+    exec "hi IncSearch guifg=" . l:deselected . " guibg=" . l:selected
+    exec "hi Substitute guifg=" . l:deselected . " guibg=" . l:selected
+
+    exec "hi VertSplit guibg=" . l:background
 
     hi NonText guibg=NONE ctermbg=NONE
 
-    hi Identifier guifg=#DBCAA4 gui=NONE
-    hi Function guifg=#DBCAA4
-    hi Delimiter guifg=#DBCAA4
-    hi Operator guifg=#DBCAA4
-    hi vimMapRhs guifg=#DBCAA4
-    hi vimFuncName guifg=#DBCAA4
-    hi vimUserFunc guifg=#DBCAA4
-    hi vimUserAttrbKey guifg=#DBCAA4
-    hi javaScript guifg=#DBCAA4
-    hi htmlTagN guifg=#DBCAA4
-    hi htmlTagName guifg=#DBCAA4
+    exec "hi Identifier guifg=" . l:normal . " gui=NONE"
+    exec "hi Function guifg=" . l:normal
+    exec "hi Delimiter guifg=" . l:normal
+    exec "hi Operator guifg=" . l:normal
+    exec "hi vimMapRhs guifg=" . l:normal
+    exec "hi vimFuncName guifg=" . l:normal
+    exec "hi vimUserFunc guifg=" . l:normal
+    exec "hi vimUserAttrbKey guifg=" . l:normal
+    exec "hi javaScript guifg=" . l:normal
+    exec "hi htmlTagN guifg=" . l:normal
+    exec "hi htmlTagName guifg=" . l:normal
 
-    hi Comment guifg=#67B32E
+    exec "hi Comment guifg=" . l:comment
 
-    hi String guifg=#2EB8A6
-    hi vbComment guifg=#2EB8A6
-    hi Character guifg=#2EB8A6
-    hi cIncluded guifg=#2EB8A6
+    exec "hi String guifg=" . l:string
+    exec "hi vbComment guifg=" . l:string
+    exec "hi Character guifg=" . l:string
+    exec "hi cIncluded guifg=" . l:string
 
-    hi Structure guifg=#55C08E gui=NONE
-    hi StorageClass guifg=#55C08E gui=NONE
-    hi Type guifg=#55C08E
-    hi vimNotation guifg=#55C08E
-    hi typescriptClassname guifg=#55C08E
-    hi typescriptTypeParameter guifg=#55C08E
-    hi typescriptInterfaceName guifg=#55C08E gui=NONE
-    hi typescriptClassname guifg=#55C08E gui=NONE
-    hi typescriptTypeReference guifg=#55C08E gui=NONE
+    exec "hi Structure guifg=" . l:type . " gui=NONE"
+    exec "hi StorageClass guifg=" . l:type . " gui=NONE"
+    exec "hi Type guifg=" . l:type
+    exec "hi vimNotation guifg=" l:type
+    exec "hi typescriptClassname guifg=" . l:type
+    exec "hi typescriptTypeParameter guifg=" l:type
+    exec "hi typescriptInterfaceName guifg=" . l:type . "gui=NONE"
+    exec "hi typescriptClassname guifg=" . l:type . " gui=NONE"
+    exec "hi typescriptTypeReference guifg=" . l:type . " gui=NONE"
 
-    hi Number guifg=#82DDD9
-    hi Boolean guifg=#82DDD9
-    hi SpecialChar guifg=#82DDD9
-    hi Float guifg=#82DDD9
-    hi Special guifg=#82DDD9
-    hi typescriptDecorator guifg=#82DDD9
-    hi typescriptTemplateSubstitution guifg=#82DDD9
-    hi typescriptTemplateSB guifg=#82DDD9
-    hi typescriptRegexpString guifg=#82DDD9
+    exec "hi Number guifg=" . l:constant
+    exec "hi Boolean guifg=" . l:constant
+    exec "hi SpecialChar guifg=" . l:constant
+    exec "hi Float guifg=" . l:constant
+    exec "hi Special guifg=" . l:constant
+    exec "hi typescriptDecorator guifg=" . l:constant
+    exec "hi typescriptTemplateSubstitution guifg=" . l:constant
+    exec "hi typescriptTemplateSB guifg=" . l:constant
+    exec "hi typescriptRegexpString guifg=" . l:constant
 
-    hi Operator guifg=#8CD4AC
+    exec "hi Repeat guifg=" . l:ident . " gui=NONE"
+    exec "hi Conditional guifg=" . l:ident . " gui=NONE"
+    exec "hi Label guifg=" . l:ident . " gui=NONE"
+    exec "hi Statement guifg=" . l:ident . " gui=NONE"
+    exec "hi Keyword guifg=" . l:ident . " gui=NONE"
+    exec "hi CppModifier guifg=" . l:ident . " gui=NONE"
+    exec "hi Exception guifg=" . l:ident . " gui=NONE"
 
-    hi Repeat guifg=#FFFFFF gui=NONE
-    hi Conditional guifg=#FFFFFF gui=NONE
-    hi Label guifg=#FFFFFF gui=NONE
-    hi Statement guifg=#FFFFFF gui=NONE
-    hi Keyword guifg=#FFFFFF gui=NONE
-    hi CppModifier guifg=#FFFFFF gui=NONE
-    hi Exception guifg=#FFFFFF gui=NONE
-
-    hi sSymbols guifg=#BCC7DA
-    hi cppNamespace guifg=#BCC7DA
-    hi Define guifg=#BCC7DA
-    hi Include guifg=#BCC7DA
-    hi PreProc guifg=#BCC7DA
-    hi htmlTag guifg=#BCC7DA
-    hi htmlArg guifg=#BCC7DA
+    exec "hi sSymbols guifg=" . l:selected
+    exec "hi cppNamespace guifg=" . l:selected
+    exec "hi Define guifg=" . l:selected
+    exec "hi Include guifg=" . l:selected
+    exec "hi PreProc guifg=" . l:selected
+    exec "hi htmlTag guifg=" . l:selected
+    exec "hi htmlArg guifg=" . l:selected
 
     hi Todo guifg=#E3B749 gui=underline,bold
     hi NoCheckin guifg=#EE1010 gui=underline,bold
