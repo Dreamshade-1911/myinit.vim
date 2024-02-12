@@ -160,9 +160,9 @@ function! ToggleQuickFix()
         cclose
     endif
 endfunction
+nnoremap <silent> <F8> :call ToggleQuickFix()<CR>
 
 nnoremap <silent> <F2> @:<CR>
-nnoremap <silent> <F8> :call ToggleQuickFix()<CR>
 nnoremap <silent> <F9> <Cmd>cprev<CR>
 inoremap <silent> <F9> <Cmd>cprev<CR>
 nnoremap <silent> <F10> <Cmd>cnext<CR>
@@ -212,6 +212,11 @@ nnoremap <Leader>J <C-w>J
 nnoremap <Leader>K <C-w>K
 nnoremap <Leader>L <C-w>L
 
+function! SynGroup()
+    let l:s = synID(line('.'), col('.'), 1)
+    echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
+endfunction
+command! SynGroup call SynGroup()
 
 " Terminal Buffer stuff
 function! NewVerticalTerminal()
@@ -462,6 +467,7 @@ endfunction
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gD <Cmd>vsp<CR><Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)

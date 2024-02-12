@@ -2,7 +2,7 @@
 function! OverrideColorSchemes()
     let l:ident            = "#FFFFFF"
     let l:normal           = "#DBCAA4"
-    let l:selected         = "#BCC7DA"
+    let l:define           = "#BCC7DA"
     let l:deselected       = "#101010"
     let l:dark_background  = "#061214"
     let l:background       = "#091B1F"
@@ -14,7 +14,7 @@ function! OverrideColorSchemes()
 
     exec "hi Normal guifg=" . l:normal " guibg=NONE ctermbg=NONE"
     exec "hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE"
-    exec "hi CursorLineNr guibg=" . l:selected . " guifg= " . l:deselected . " gui=bold ctermfg=NONE"
+    exec "hi CursorLineNr guibg=" . l:define . " guifg= " . l:deselected . " gui=bold ctermfg=NONE"
 
     exec "hi StatusLine guibg=" . l:background
     exec "hi StatusLineNC guibg=" . l:background
@@ -31,12 +31,12 @@ function! OverrideColorSchemes()
     exec "hi TabLine guifg=#82DDD9 guibg=" . l:light_background
     exec "hi TabLineSel guifg=#101010 guibg=" . l:type
 
-    exec "hi CurSearch guifg=" . l:deselected . " guibg=" . l:constant
-    exec "hi MatchParen guifg=" . l:deselected . " guibg=" . l:selected
-    exec "hi Visual guifg=" . l:deselected . " guibg=" . l:selected
-    exec "hi Search guifg=" . l:deselected . " guibg=" . l:selected
-    exec "hi IncSearch guifg=" . l:deselected . " guibg=" . l:selected
-    exec "hi Substitute guifg=" . l:deselected . " guibg=" . l:selected
+    exec "hi CurSearch guifg=" . l:deselected . " guibg=" . l:define
+    exec "hi IncSearch guifg=" . l:deselected . " guibg=" . l:define
+    exec "hi MatchParen guifg=" . l:deselected . " guibg=" . l:type
+    exec "hi Visual guifg=" . l:deselected . " guibg=" . l:type
+    exec "hi Search guifg=" . l:deselected . " guibg=" . l:type
+    exec "hi Substitute guifg=" . l:deselected . " guibg=" . l:type
 
     exec "hi VertSplit guibg=" . l:background
 
@@ -89,17 +89,19 @@ function! OverrideColorSchemes()
     exec "hi CppModifier guifg=" . l:ident . " gui=NONE"
     exec "hi Exception guifg=" . l:ident . " gui=NONE"
 
-    exec "hi sSymbols guifg=" . l:selected
-    exec "hi cppNamespace guifg=" . l:selected
-    exec "hi Define guifg=" . l:selected
-    exec "hi Include guifg=" . l:selected
-    exec "hi PreProc guifg=" . l:selected
-    exec "hi htmlTag guifg=" . l:selected
-    exec "hi htmlArg guifg=" . l:selected
+    exec "hi sSymbols guifg=" . l:define
+    exec "hi cppNamespace guifg=" . l:define
+    exec "hi Define guifg=" . l:define
+    exec "hi Include guifg=" . l:define
+    exec "hi PreProc guifg=" . l:define
+    exec "hi htmlTag guifg=" . l:define
+    exec "hi htmlArg guifg=" . l:define
+    exec "hi odinAttribute guifg=" . l:define
 
     hi Todo guifg=#E3B749 gui=underline,bold
     hi NoCheckin guifg=#EE1010 gui=underline,bold
 
+    hi link odinAttribute Special
     hi! link GitGutterAddLineNr DiffAdd
     hi! link GitGutterChangeLineNr DiffChange
     hi! link GitGutterDeleteLineNr DiffDelete
@@ -109,12 +111,14 @@ endfunction
 function! SetCustomSyntax()
     match ExtraWhitespace /\s\+$/
     " @For this: Setup notes like the one before in comments <
-    syn match Todo /@[A-z0-9\-_\(\)\[\]{} ]*:/ containedin=.*Comment
+    syn match Todo /@[A-z0-9\-_\(\)\[\]{} ]*:/ display oneline containedin=.*Comment,vimCommentTitle,cCommentL contained
     syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
-    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
+    syn match sSymbols "->\|=>"
     syn keyword Statement defer
-    syn match sSymbols "\.\|->\|=>"
+    syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
+    syn keyword odinDataType f32 f64 f32le f64le f32be f64be u8 u16 u32 u64 u128 u8le u16le u32le u64le u128le u8be u16be u32be u64be u128be
+    syn region odinAttribute start="@(" end=")" contains=odinString
 endfunction
 
 function! DreamshadeWindowEntered()
