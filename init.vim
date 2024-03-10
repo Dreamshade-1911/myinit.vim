@@ -374,7 +374,9 @@ function! NewSessionTabEntered()
     let t:session_tab_term_index = 1
     let t:last_toggled_term_winid = 1
     let t:last_toggled_nonterm_winid = win_getid()
-    exec timer_start(50, "TimerVertTerm")
+    if has("gui_running")
+        exec timer_start(50, "TimerVertTerm")
+    endif
 endfunction
 
 function! TimerNewSessionTabEntered(timerid)
