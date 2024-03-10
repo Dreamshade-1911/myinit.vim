@@ -65,11 +65,7 @@ if executable('rg')
     set grepformat+=%f:%l:%c:%m
 endif
 
-if has("win32")
-    set guifont=FireMono\ Nerd\ Font:h11
-else
-    set guifont=FiraCode\ Nerd\ Font:h11
-endif
+set guifont=FiraMono\ Nerd\ Font:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff300
 set cursorline
