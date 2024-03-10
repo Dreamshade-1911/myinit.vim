@@ -101,7 +101,9 @@ function! OverrideColorSchemes()
     hi Todo guifg=#E3B749 gui=underline,bold
     hi NoCheckin guifg=#EE1010 gui=underline,bold
 
-    hi link odinAttribute Special
+    hi! link odinAttribute Special
+    hi! link odinExtNumber odinNumber
+    hi! link odinExtHex odinNumber
     hi! link GitGutterAddLineNr DiffAdd
     hi! link GitGutterChangeLineNr DiffChange
     hi! link GitGutterDeleteLineNr DiffDelete
@@ -112,9 +114,12 @@ function! SetCustomSyntax()
     match ExtraWhitespace /\s\+$/
     " @For this: Setup notes like the one before in comments <
     syn match Todo /@[A-z0-9\-_\(\)\[\]{} ]*:/ display oneline containedin=.*Comment,vimCommentTitle,cCommentL contained
-    syn match NoCheckin /nocheckin/ containedin=ALL
     syn match cppNamespace /[a-zA-Z0-9_]\+::/
     syn match sSymbols "->\|=>"
+    " Not working...
+    " syn match odinExtNumber /(0[boi])?[0-9_.]+/ display
+    " syn match odinExtHex /0x[0-9_a-fA-F]+/ display
+    syn keyword NoCheckin nocheckin containedin=ALL
     syn keyword Statement defer
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
     syn keyword odinDataType f32 f64 f32le f64le f32be f64be u8 u16 u32 u64 u128 u8le u16le u32le u64le u128le u8be u16be u32be u64be u128be

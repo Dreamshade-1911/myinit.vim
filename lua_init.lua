@@ -49,7 +49,7 @@ require("lualine").setup {
             { "filename", path = 1 },
         },
         lualine_x = { "fileformat" },
-        lualine_y = { "filetype", "progress" },
+        lualine_y = { "g:coc_status", "filetype", "progress" },
         lualine_z = {
             { "location", separator = { right = "" }, left_padding = 2 },
         },

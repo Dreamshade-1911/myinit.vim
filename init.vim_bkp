@@ -71,12 +71,8 @@ else
     set guifont=FiraCode\ Nerd\ Font:h11
 endif
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
-set guicursor+=a:-blinkwait500-blinkon800-blinkoff300
+set guicursor+=a:-blinkwait500-blinkon800-blinkoff200
 set cursorline
-set tabstop=8
-set shiftwidth=4
-set softtabstop=-1
-set expandtab
 set autoread
 set showmatch
 set autoindent
@@ -104,6 +100,9 @@ set path+=**
 set nofoldenable
 set synmaxcol=1000
 set nobuflisted
+set tabstop=4
+set shiftwidth=4
+set expandtab
 set splitbelow
 set fillchars+=vert:\ " Comment so we don't have trailing space.
 set fillchars+=eob:\ " Comment
@@ -399,10 +398,13 @@ nnoremap <silent> <C-S-Tab> :tabp<CR>
 inoremap <silent> <C-S-Tab> <ESC>:tabp<CR>
 vnoremap <silent> <C-S-Tab> <ESC>:tabp<CR>
 nnoremap <silent> <Leader>1 1gt
+vnoremap <silent> <Leader>1 <ESC>1gt
 nnoremap <silent> <Leader>2 2gt
+vnoremap <silent> <Leader>2 <ESC>2gt
 nnoremap <silent> <Leader>3 3gt
+vnoremap <silent> <Leader>3 <ESC>3gt
 nnoremap <silent> <Leader>4 4gt
-nnoremap <silent> <Leader>5 5gt
+vnoremap <silent> <Leader>4 <ESC>4gt
 nnoremap <silent> <Leader>Q :tabc<CR>
 vnoremap <silent> <Leader>Q <ESC>:tabc<CR>
 
