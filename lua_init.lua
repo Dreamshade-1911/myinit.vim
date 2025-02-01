@@ -12,6 +12,19 @@ require("indent-o-matic").setup {
     skip_multine = true,
 }
 
+require("no-neck-pain").setup {
+    width = 170,
+    autocmds = {
+        enableOnVimEnter = true,
+        enableOnTabEnter = true,
+    },
+    integrations = {
+        undotree = {
+            position = "left",
+        },
+    },
+}
+
 
 local colors = {
     darkg     = "#091B1F",
