@@ -27,16 +27,20 @@ call plug#begin(has('nvim') ? stdpath('data')..'/plugged' : '~/.vim/plugged')
     Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install', 'for': ['markdown', 'vim-plug'], 'on': 'MarkdownPreview' }
     Plug 'shortcuts/no-neck-pain.nvim', { 'tag': '*' }
     Plug 'tpope/vim-dispatch'
+    Plug 'rmagatti/auto-session'
 call plug#end()
+
+exec "source "..stdpath('config').."/lua_init.lua"
+exec "source "..stdpath('config').."/dreamshade_theme.vim"
 
 " If the argument passed is a folder, set it as cwd.
 if argc() == 1 && isdirectory(argv(0))
     cd `=argv(0)`
     tcd `=argv(0)`
+elseif argc() == 1
+    cd %:h
+    tcd %:h
 endif
-
-exec "source "..stdpath('config').."/lua_init.lua"
-exec "source "..stdpath('config').."/dreamshade_theme.vim"
 
 if exists("g:neovide")
     let g:neovide_padding_left = 5
@@ -53,6 +57,14 @@ if exists("g:neovide")
     let g:neovide_cursor_animation_length = 0.1
     let g:neovide_cursor_trail_size = 0.5
     let g:neovide_remember_window_size = v:true
+    let g:neovide_window_blurred = v:true
+    let g:neovide_floating_blur_amount_x = 5.0
+    let g:neovide_floating_blur_amount_y = 5.0
+    let g:neovide_floating_corner_radius = 6.0
+    " let g:neovide_transparency = 0.95
+    " let g:neovide_normal_opacity = 0.9
+    let g:neovide_title_background_color = "#061214"
+    let g:neovide_title_text_color = "#DBCAA4"
 elseif exists("g:nvui")
     NvuiCursorHideWhileTyping 1
     NvuiOpacity 1
@@ -111,7 +123,7 @@ set nobuflisted
 set splitbelow
 set fillchars+=vert:\ " Comment so we don't have trailing space.
 set fillchars+=eob:\ " Comment
-set sessionoptions=blank,curdir,help,localoptions,tabpages,winsize,resize
+set sessionoptions=blank,curdir,folds,help,tabpages,resize,winsize,winpos,terminal
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 

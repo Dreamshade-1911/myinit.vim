@@ -6,30 +6,30 @@ function! OverrideColorSchemes()
     let l:deselected       = "#101010"
     let l:dark_background  = "#061214"
     let l:background       = "#091B1F"
-    let l:light_background = "#132C30"
+    let l:light_background = "#112D32"
     let l:constant         = "#7EE6E1"
     let l:string           = "#21C2A5"
     let l:type             = "#3EC984"
     let l:comment          = "#67B32E"
 
-    exec "hi Normal guifg=" . l:normal " guibg=NONE ctermbg=NONE"
-    exec "hi CursorLine guibg=NONE guifg=NONE ctermbg=NONE ctermfg=NONE"
+    if exists("g:nvui") || exists("g:neovide")
+        exec "hi Normal guifg=" . l:normal . " guibg=" . l:dark_background
+        exec "hi NormalActive guibg=" . l:background
+    else
+        exec "hi Normal guifg=" . l:normal " guibg=NONE ctermbg=NONE"
+    endif
+
+    exec "hi CursorLine guibg=" . l:light_background . " guifg=NONE ctermbg=NONE ctermfg=NONE"
     exec "hi CursorLineNr guibg=" . l:define . " guifg= " . l:deselected . " gui=bold ctermfg=NONE"
 
-    exec "hi StatusLine guibg=" . l:background
-    exec "hi StatusLineNC guibg=" . l:background
-
     hi link ExtraWhitespace Error
-
-    if exists("g:nvui") || exists("g:neovide")
-        exec "hi Normal guibg=" . l:dark_background
-        exec "hi NormalActive guibg=" . l:background
-        exec "hi CursorLine guibg=" . l:light_background . " guifg=NONE ctermbg=NONE ctermfg=NONE"
-    endif
 
     exec "hi TabLineFill guibg=" . l:background
     exec "hi TabLine guifg=#82DDD9 guibg=" . l:light_background
     exec "hi TabLineSel guifg=#101010 guibg=" . l:type
+
+    exec "hi StatusLine guibg=" . l:background
+    exec "hi StatusLineNC guibg=" . l:background
 
     exec "hi CurSearch guifg=" . l:deselected . " guibg=" . l:define
     exec "hi IncSearch guifg=" . l:deselected . " guibg=" . l:define
