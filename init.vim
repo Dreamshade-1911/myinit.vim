@@ -42,6 +42,15 @@ elseif argc() == 1
     tcd %:h
 endif
 
+function! RunAcrylic(win_name)
+    if has("win32") && executable("acrylic")
+        let g:acrylic_win_name = a:win_name
+        augroup AcrylicNeovide
+            autocmd! UIEnter * call system("acrylic " . g:acrylic_win_name)
+        augroup END
+    endif
+endfunction
+
 if exists("g:neovide")
     let g:neovide_padding_left = 5
     let g:neovide_padding_right = 5
@@ -61,14 +70,14 @@ if exists("g:neovide")
     let g:neovide_floating_blur_amount_x = 5.0
     let g:neovide_floating_blur_amount_y = 5.0
     let g:neovide_floating_corner_radius = 6.0
-    " let g:neovide_transparency = 0.95
-    " let g:neovide_normal_opacity = 0.9
+    let g:neovide_opacity = 0.8
     let g:neovide_title_background_color = "#061214"
     let g:neovide_title_text_color = "#DBCAA4"
+    call RunAcrylic("Neovide")
 elseif exists("g:nvui")
     NvuiCursorHideWhileTyping 1
     NvuiOpacity 1
-    NvuiTitlebarBg #22272e
+    NvuiTitlebarBg #091B1F
     NvuiTitlebarFontSize 11
     NvuiCursorAnimationDuration 0.1
     NvuiScrollAnimationDuration 0.2
@@ -81,7 +90,7 @@ elseif exists("g:nvui")
 endif
 
 if executable('rg')
-    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case
+    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --color=never
     set grepformat+=%f:%l:%c:%m
 endif
 
@@ -124,7 +133,7 @@ set splitbelow
 set fillchars+=vert:\ " Comment so we don't have trailing space.
 set fillchars+=eob:\ " Comment
 set sessionoptions=blank,curdir,folds,help,tabpages,resize,winsize,winpos,terminal
-set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,build,dist,data,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
+set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 
 " Enable comments in JSON files
@@ -233,11 +242,11 @@ nnoremap <Leader>L <C-w>L
 command! Cdhere tcd %:p:h
 
 " Custom grep
-augroup GrepQuickFix | autocmd! QuickFixCmdPost cgetexpr botright cwindow 18
-function! CustomGrep(...)
-    return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
-endfunction
-command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
+" augroup GrepQuickFix | autocmd! QuickFixCmdPost cgetexpr botright cwindow 18
+" function! CustomGrep(...)
+"     return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
+" endfunction
+" command! -nargs=+ -complete=file_in_path -bar Grep cgetexpr CustomGrep(<f-args>)
 
 " Show SynGroup under cursor
 function! SynGroup()
@@ -267,7 +276,12 @@ let g:ctrlp_working_path_mode = "ra"
 let g:ctrlp_show_hidden = 1
 let g:ctrlp_use_caching = 0
 let g:ctrlp_by_filename = 0
-let g:ctrlp_root_markers = ['package.json', 'makefile']
+let g:ctrlp_root_markers = ["package.json", "makefile"]
+let g:ctrlp_clear_cache_on_exit = 1
+if executable("rg")
+  let g:ctrlp_user_command = 'rg %s --files --color=never'
+  let g:ctrlp_use_caching = 0
+endif
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
 let g:netrw_fastbrowse = 0
@@ -288,7 +302,7 @@ let g:easy_align_delimiters = {
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
-let g:coc_global_extensions = ['coc-vimlsp', 'coc-go', 'coc-sh', 'coc-git', 'coc-glslx', 'coc-html-css-support', 'coc-json', 'coc-html', 'coc-css', 'coc-yaml', 'coc-tsserver', '@yaegassy/coc-volar']
+let g:coc_global_extensions = ['coc-vimlsp', 'coc-go', 'coc-sh', 'coc-git', 'coc-glslx', 'coc-html-css-support', 'coc-html', 'coc-css', 'coc-yaml', 'coc-tsserver', '@yaegassy/coc-volar']
 
 inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
 nnoremap <silent> K :call ShowDocumentation()<CR>
