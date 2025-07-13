@@ -3,36 +3,6 @@ set termguicolors
 filetype plugin on
 syntax enable
 
-call plug#begin(has('nvim') ? stdpath('data')..'/plugged' : '~/.vim/plugged')
-    Plug 'arcticicestudio/nord-vim'
-    Plug 'nvim-lualine/lualine.nvim'
-    Plug 'tpope/vim-fugitive'
-    Plug 'junegunn/vim-easy-align'
-    Plug 'airblade/vim-gitgutter'
-    Plug 'Darazaki/indent-o-matic'
-    Plug 'djoshea/vim-autoread'
-    Plug 'lukas-reineke/indent-blankline.nvim'
-    Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'tikhomirov/vim-glsl', { 'for': ['vert', 'tesc', 'tese', 'geom', 'frag', 'comp'] }
-    Plug 'posva/vim-vue', { 'for': ['vue'] }
-    Plug 'neoclide/coc.nvim', { 'branch': 'release', 'do': { -> coc#util#install() } }
-    Plug 'bfrg/vim-cpp-modern', { 'for': ['cpp', 'cxx', 'h', 'hpp'] }
-    Plug 'rluba/jai.vim', { 'for': ['jai'] }
-    Plug 'tpope/vim-abolish'
-    Plug 'tpope/vim-commentary'
-    Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-    Plug 'Tetralux/odin.vim', { 'for': ['odin'] }
-    Plug 'ggandor/leap.nvim'
-    Plug 'editorconfig/editorconfig-vim'
-    Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install', 'for': ['markdown', 'vim-plug'], 'on': 'MarkdownPreview' }
-    Plug 'shortcuts/no-neck-pain.nvim', { 'tag': '*' }
-    Plug 'tpope/vim-dispatch'
-    Plug 'rmagatti/auto-session'
-call plug#end()
-
-exec "source "..stdpath('config').."/lua_init.lua"
-exec "source "..stdpath('config').."/dreamshade_theme.vim"
-
 " If the argument passed is a folder, set it as cwd.
 if argc() == 1 && isdirectory(argv(0))
     cd `=argv(0)`
@@ -136,6 +106,14 @@ set sessionoptions=blank,curdir,folds,help,tabpages,resize,winsize,winpos,termin
 set wildignore+=tmp,.tmp,*.swp,*.zip,*.exe,*.obj,.vscode,.vs,.git,node_modules,bin,build,dist,*.png,*.jpeg,*.jpg,*.svg,*.bmp,package-lock.json,yarn.lock,*.pdb,*.map,third_party,.nyc_output,obj,Packages,ProjectSettings,UserSettings,Library,Logs
 
 
+" Silent grep command
+:command! -nargs=+ Grep execute ':silent grep '.<q-args> | execute ':redraw!'
+
+" Open QuickFix window on grepping
+autocmd QuickFixCmdPost [^l]* botright cwindow 18
+autocmd QuickFixCmdPost    l* botright lwindow 18
+
+
 " Enable comments in JSON files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
@@ -197,10 +175,10 @@ nnoremap <silent> <F9> <Cmd>cprev<CR>
 inoremap <silent> <F9> <Cmd>cprev<CR>
 nnoremap <silent> <F10> <Cmd>cnext<CR>
 inoremap <silent> <F10> <Cmd>cnext<CR>
-nnoremap <silent> <F11> <Cmd>Make build<CR>
-inoremap <silent> <F11> <Cmd>Make build<CR>
-nnoremap <silent> <F12> <Cmd>vert Start make build_and_run<CR>
-inoremap <silent> <F12> <Cmd>vert Start make build_and_run<CR>
+nnoremap <silent> <F11> <Cmd>make build<CR>
+inoremap <silent> <F11> <Cmd>make build<CR>
+nnoremap <silent> <F12> <Cmd>vert make<CR>
+inoremap <silent> <F12> <Cmd>vert make<CR>
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -302,7 +280,7 @@ let g:easy_align_delimiters = {
 
 " Setup CoC
 let g:coc_config_home = stdpath('config')
-let g:coc_global_extensions = ['coc-vimlsp', 'coc-go', 'coc-sh', 'coc-git', 'coc-glslx', 'coc-html-css-support', 'coc-html', 'coc-css', 'coc-yaml', 'coc-tsserver', '@yaegassy/coc-volar']
+let g:coc_global_extensions = ['coc-vimlsp', 'coc-go', 'coc-git', 'coc-glslx', 'coc-html-css-support', 'coc-html', 'coc-css', 'coc-yaml', 'coc-tsserver', '@yaegassy/coc-volar']
 
 inoremap <silent> <expr><S-TAB> coc#pum#visible() ? coc#pum#confirm() : coc#refresh()
 nnoremap <silent> K :call ShowDocumentation()<CR>
@@ -352,3 +330,5 @@ endif
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction("format")
 
+exec "source "..stdpath('config').."/lua_init.lua"
+exec "source "..stdpath('config').."/dreamshade_theme.vim"

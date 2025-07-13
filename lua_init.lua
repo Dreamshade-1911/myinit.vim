@@ -1,3 +1,164 @@
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+            { out, "WarningMsg" },
+            { "\nPress any key to exit..." },
+        }, true, {})
+      vim.fn.getchar()
+      os.exit(1)
+    end
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+-- vim.g.mapleader = "<Space>"
+-- vim.g.maplocalleader = "<Space>"
+
+-- Setup lazy.nvim
+require("lazy").setup({
+    spec = {
+        {
+            "arcticicestudio/nord-vim",
+            lazy = false,
+            priority = 1000,
+        },
+        {
+            "nvim-lualine/lualine.nvim",
+            dependencies = { "nvim-tree/nvim-web-devicons" },
+            lazy = false,
+        },
+        {
+            "tpope/vim-fugitive",
+            lazy = false,
+        },
+        {
+            "junegunn/vim-easy-align",
+            lazy = false,
+        },
+        {
+            "airblade/vim-gitgutter",
+            lazy = false,
+        },
+        {
+            "djoshea/vim-autoread",
+            lazy = false,
+        },
+        {
+            "lukas-reineke/indent-blankline.nvim",
+            main = "ibl",
+            lazy = false,
+        },
+        {
+            "ctrlpvim/ctrlp.vim",
+            lazy = false,
+        },
+        {
+            "neoclide/coc.nvim",
+            lazy = false,
+            build = "npm ci",
+        },
+        {
+            "shortcuts/no-neck-pain.nvim",
+            lazy = false,
+        },
+        { "tpope/vim-abolish" },
+        { "tpope/vim-commentary" },
+        { "tpope/vim-dispatch" },
+        { "rmagatti/auto-session" },
+        { "mbbill/undotree" },
+        { "ggandor/leap.nvim" },
+        { "editorconfig/editorconfig-vim" },
+        { "Tetralux/odin.vim" },
+        { "tikhomirov/vim-glsl" },
+        { "rluba/jai.vim" },
+        {
+            "yetone/avante.nvim",
+            -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+            -- ⚠️ must add this setting! ! !
+            build = function()
+                -- conditionally use the correct build system for the current OS
+                if vim.fn.has("win32") == 1 then
+                    return "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+                else
+                    return "make"
+                end
+            end,
+            event = "VeryLazy",
+            version = false, -- Never set this value to "*"! Never!
+            ---@module 'avante'
+            ---@type avante.Config
+            opts = {
+                -- add any opts here
+                -- for example
+                provider = "qwen3",
+                auto_suggestions_provider = "qwen3",
+                providers = {
+                    qwen3 = {
+                        __inherited_from = "openai",
+                        api_key_name = "OS",
+                        endpoint = "http://127.0.0.1:5001/v1",
+                        model = "Qwen3-14B-Q4",
+                    },
+                },
+            },
+            dependencies = {
+                "nvim-lua/plenary.nvim",
+                "MunifTanjim/nui.nvim",
+                --- The below dependencies are optional,
+                "echasnovski/mini.pick", -- for file_selector provider mini.pick
+                "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
+                "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+                "ibhagwan/fzf-lua", -- for file_selector provider fzf
+                "stevearc/dressing.nvim", -- for input provider dressing
+                "folke/snacks.nvim", -- for input provider snacks
+                "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
+                {
+                    -- support for image pasting
+                    "HakonHarnes/img-clip.nvim",
+                    event = "VeryLazy",
+                    opts = {
+                        -- recommended settings
+                        default = {
+                            embed_image_as_base64 = false,
+                            prompt_for_file_name = false,
+                            drag_and_drop = {
+                              insert_mode = true,
+                            },
+                            -- required for Windows users
+                            use_absolute_path = true,
+                        },
+                    },
+                },
+                {
+                    -- Make sure to set this up properly if you have lazy=true
+                    'MeanderingProgrammer/render-markdown.nvim',
+                    opts = {
+                        file_types = { "markdown", "Avante" },
+                    },
+                    ft = { "markdown", "Avante" },
+                },
+            },
+        }
+    },
+    -- Configure any other settings here. See the documentation for more details.
+    -- colorscheme that will be used when installing plugins.
+    install = {
+        colorscheme = { "habamax" },
+    },
+    -- automatically check for plugin updates
+    checker = {
+        enabled = true,
+        notify = false,
+    },
+})
+
 vim.opt.shadafile = "NONE"
 
 require("auto-session").setup {
@@ -55,11 +216,11 @@ require("ibl").setup {
     },
 }
 
-require("indent-o-matic").setup {
-    max_lines = 2048,
-    standard_widths = { 2, 4, 8 },
-    skip_multine = true,
-}
+-- require("indent-o-matic").setup {
+--     max_lines = 2048,
+--     standard_widths = { 2, 4, 8 },
+--     skip_multine = true,
+-- }
 
 require("no-neck-pain").setup {
     width = 150,
