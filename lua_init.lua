@@ -68,6 +68,10 @@ require("lazy").setup({
             "shortcuts/no-neck-pain.nvim",
             lazy = false,
         },
+        {
+            "tpope/vim-sleuth",
+            lazy = false,
+        },
         { "tpope/vim-abolish" },
         { "tpope/vim-commentary" },
         { "tpope/vim-dispatch" },

@@ -59,11 +59,6 @@ elseif exists("g:nvui")
     NvuiIMEDisable
 endif
 
-if executable('rg')
-    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --color=never
-    set grepformat+=%f:%l:%c:%m
-endif
-
 set guifont=FiraMono\ Nerd\ Font:h11
 set guicursor=i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block
 set guicursor+=a:-blinkwait500-blinkon800-blinkoff300
@@ -123,13 +118,6 @@ set errorformat+=%A%f(%l:%c)\ %m,%Z%s%p^%.%#
 
 
 " General remaps
-map ç <C-c>
-nmap ç a
-nmap Ç 0^
-imap ç <Esc>
-imap Ç <C-o>
-vmap Ç 0^
-tnoremap ç <C-\><C-n>
 nnoremap ) ^
 vnoremap ) ^
 inoremap <C-u> <ESC>viwUea
@@ -175,10 +163,10 @@ nnoremap <silent> <F9> <Cmd>cprev<CR>
 inoremap <silent> <F9> <Cmd>cprev<CR>
 nnoremap <silent> <F10> <Cmd>cnext<CR>
 inoremap <silent> <F10> <Cmd>cnext<CR>
-nnoremap <silent> <F11> <Cmd>make build<CR>
-inoremap <silent> <F11> <Cmd>make build<CR>
-nnoremap <silent> <F12> <Cmd>vert make<CR>
-inoremap <silent> <F12> <Cmd>vert make<CR>
+nnoremap <silent> <F11> <Cmd>Make build<CR>
+inoremap <silent> <F11> <Cmd>Make build<CR>
+nnoremap <silent> <F12> <Cmd>vert Start make<CR>
+inoremap <silent> <F12> <Cmd>vert Start make<CR>
 
 " Leader keybinds
 nnoremap <Space> <Nop>
@@ -257,8 +245,10 @@ let g:ctrlp_by_filename = 0
 let g:ctrlp_root_markers = ["package.json", "makefile"]
 let g:ctrlp_clear_cache_on_exit = 1
 if executable("rg")
-  let g:ctrlp_user_command = 'rg %s --files --color=never'
-  let g:ctrlp_use_caching = 0
+    set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --color=never
+    set grepformat+=%f:%l:%c:%m
+    let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
+    let g:ctrlp_use_caching = 0
 endif
 let g:vue_pre_processors = "detect_on_enter"
 let g:netrw_cygwin = 0
