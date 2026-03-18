@@ -13,16 +13,17 @@ elseif vim.fn.argc() == 1 then
 end
 
 -- Acrylic transparency helper (Windows only)
-local function run_acrylic(win_name)
-    if vim.fn.has("win32") == 1 and vim.fn.executable("acrylic") == 1 then
-        vim.api.nvim_create_autocmd("UIEnter", {
-            once = true,
-            callback = function()
-                vim.fn.system("acrylic " .. win_name)
-            end,
-        })
-    end
-end
+-- @Note: I think Neovide now supports window blur so this isn't needed? They didn't document anything.
+-- local function run_acrylic(win_name)
+--     if vim.fn.has("win32") == 1 and vim.fn.executable("acrylic") == 1 then
+--         vim.api.nvim_create_autocmd("UIEnter", {
+--             once = true,
+--             callback = function()
+--                 vim.fn.system("acrylic " .. win_name)
+--             end,
+--         })
+--     end
+-- end
 
 -- GUI-specific settings
 if vim.g.neovide then
@@ -47,7 +48,7 @@ if vim.g.neovide then
     vim.g.neovide_opacity = 0.8
     vim.g.neovide_title_background_color = "#061214"
     vim.g.neovide_title_text_color = "#DBCAA4"
-    run_acrylic("Neovide")
+    -- run_acrylic("Neovide")
 elseif vim.g.nvui then
     vim.cmd([[
         NvuiCursorHideWhileTyping 1
@@ -380,6 +381,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
     spec = {
+        -- Non-lazy first
         { "arcticicestudio/nord-vim", lazy = false, priority = 1000 },
         { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }, lazy = false },
         { "tpope/vim-fugitive", lazy = false },
@@ -391,12 +393,25 @@ require("lazy").setup({
         { "neoclide/coc.nvim", lazy = false, build = "npm ci" },
         { "shortcuts/no-neck-pain.nvim", lazy = false },
         { "tpope/vim-sleuth", lazy = false },
+        { "https://codeberg.org/andyg/leap.nvim", lazy = false },
+        {
+          'stevearc/oil.nvim',
+          ---@module 'oil'
+          ---@type oil.SetupOpts
+          opts = {},
+          -- Optional dependencies
+          dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+          -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+          -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+          lazy = false,
+        },
+
+        -- Lazy plugins
         { "tpope/vim-abolish" },
         { "tpope/vim-commentary" },
         { "tpope/vim-dispatch" },
         { "rmagatti/auto-session" },
         { "mbbill/undotree" },
-        { "ggandor/leap.nvim" },
         { "editorconfig/editorconfig-vim" },
         { "Tetralux/odin.vim" },
         { "tikhomirov/vim-glsl" },
@@ -449,7 +464,8 @@ require("auto-session").setup({
     },
 })
 
-require("leap").add_default_mappings()
+vim.keymap.set({'n', 'x', 'o'}, 's', '<Plug>(leap)')
+vim.keymap.set('n',             'S', '<Plug>(leap-from-window)')
 
 require("ibl").setup({
     indent = { char = "▏" },
@@ -511,6 +527,16 @@ require("lualine").setup({
     },
     tabline = {},
     extensions = {},
+})
+
+require("oil").setup({
+    view_options = {
+        show_hidden = true,
+    },
+    keymaps = {
+        ["<C-p>"] = false,
+        ["<Leader>p"] = "actions.preview",
+    },
 })
 
 ---------------------------------------------------------------------------
