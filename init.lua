@@ -98,6 +98,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.opt.path:append("**")
 vim.o.foldenable = false
+vim.o.modeline = false
 vim.o.synmaxcol = 1000
 vim.o.buflisted = false
 vim.o.splitbelow = true
@@ -106,8 +107,9 @@ vim.o.sessionoptions = "blank,curdir,folds,help,tabpages,resize,winsize,winpos,t
 vim.opt.wildignore:append({
     "tmp", ".tmp", "*.swp", "*.zip", "*.exe", "*.obj", ".vscode", ".vs", ".git",
     "node_modules", "bin", "build", "dist", "*.png", "*.jpeg", "*.jpg", "*.svg",
-    "*.bmp", "package-lock.json", "yarn.lock", "*.pdb", "*.map", "third_party",
+    "*.bmp", "package-lock.json", "yarn.lock", "*.pdb", "*.map", "third_party", "deps",
     ".nyc_output", "obj", "Packages", "ProjectSettings", "UserSettings", "Library", "Logs",
+    ".ttf"
 })
 
 -- Abbreviate "silent grep" as "grep"
@@ -132,13 +134,38 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Odin error format
 vim.opt.errorformat:append("%A%f(%l:%c) %m,%Z%s%p^%.%#")
 
+local function expand_brackets()
+  local line = vim.api.nvim_get_current_line()
+  local col = vim.api.nvim_win_get_cursor(0)[2] -- 0-indexed
+
+  local pairs_map = { ["("] = ")", ["{"] = "}", ["["] = "]" }
+
+  -- Search backward from cursor for the nearest adjacent open-close pair
+  local found_open = nil
+  for p = col - 1, 0, -1 do
+    local ch = line:sub(p + 1, p + 1)       -- char at position p
+    local next_ch = line:sub(p + 2, p + 2)  -- char at position p+1
+    if pairs_map[ch] and pairs_map[ch] == next_ch then
+      found_open = ch
+      break
+    end
+  end
+
+  if found_open then
+    local keys = vim.api.nvim_replace_termcodes(
+      "<ESC>F" .. found_open .. "a<CR><ESC>O", true, false, true
+    )
+    vim.api.nvim_feedkeys(keys, "n", false)
+  end
+end
+
 -- General remaps
 local map = vim.keymap.set
 map("n", ")", "^")
 map("v", ")", "^")
 map("i", "<C-u>", "<ESC>viwUea")
-map("i", "<S-CR>", "<ESC>O")
-map("i", "<C-CR>", "<ESC>F{a<CR><ESC>O")
+map("i", "<C-CR>", "<ESC>O")
+map("i", "<S-CR>", expand_brackets)
 map("i", "<C-BS>", "<ESC>diwi")
 map("t", "<Esc>", "<C-\\><C-n>")
 map("n", "<C-Left>", "<Cmd>vertical resize -15<CR>", { silent = true })
@@ -177,8 +204,8 @@ map("n", "<F2>", "@:<CR>", { silent = true })
 map({ "n", "i", "v", "t" }, "<F5>", "<Cmd>NoNeckPain<CR>", { silent = true })
 map({ "n", "i" }, "<F9>", "<Cmd>cprev<CR>", { silent = true })
 map({ "n", "i" }, "<F10>", "<Cmd>cnext<CR>", { silent = true })
-map({ "n", "i" }, "<F11>", "<Cmd>Make build<CR>", { silent = true })
-map({ "n", "i" }, "<F12>", "<Cmd>vert Start make<CR>", { silent = true })
+map({ "n", "i" }, "<F11>", "<Cmd>make<CR>", { silent = true })
+map({ "n", "i" }, "<F12>", "<Cmd>make<CR>", { silent = true })
 
 -- Leader keybinds
 map("n", "<Space>", "<Nop>")
@@ -186,9 +213,9 @@ vim.g.mapleader = " "
 map("n", "<Leader><Leader>", ":source $MYVIMRC<CR>", { silent = true })
 map("n", "<Leader>'", ":e $MYVIMRC<CR>", { silent = true })
 map("n", '<Leader>"', ":vs $MYVIMRC<CR>", { silent = true })
-map("n", "<Leader>e", ":e %:h<CR>", { silent = true })
+map("n", "<Leader>e", ":Oil %:h<CR>", { silent = true })
 map("n", "<Leader>E", ":vs %:h<CR>", { silent = true })
-map("n", "<Leader>.", ":e .<CR>", { silent = true })
+map("n", "<Leader>.", ":Oil .<CR>", { silent = true })
 map("n", "<Leader>p", "pkdd", { silent = true })
 map("n", "<Leader>0", '"0p')
 map("n", "<Leader>)", '"0P')
@@ -214,9 +241,6 @@ map("n", "<Leader>J", "<C-w>J")
 map("n", "<Leader>K", "<C-w>K")
 map("n", "<Leader>L", "<C-w>L")
 
--- Commands
-vim.api.nvim_create_user_command("Cdhere", "tcd %:p:h", {})
-
 -- Show SynGroup under cursor
 vim.api.nvim_create_user_command("SynGroup", function()
     local s = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
@@ -235,14 +259,18 @@ map("n", "<C-Down>", function()
     end)
 end, { silent = true })
 
+-- Commands
+vim.api.nvim_create_user_command("Cdhere", "tcd %:p:h", {})
+vim.api.nvim_create_user_command("Retab", "set expandtab | %retab!", {})
+
 -- General plugin settings
 vim.g.ctrlp_cmd = "CtrlPLastMode"
 vim.g.ctrlp_map = "<C-p>"
 vim.g.ctrlp_working_path_mode = "ra"
 vim.g.ctrlp_show_hidden = 1
-vim.g.ctrlp_use_caching = 0
+vim.g.ctrlp_use_caching = 1
 vim.g.ctrlp_by_filename = 0
-vim.g.ctrlp_root_markers = { "package.json", "makefile" }
+vim.g.ctrlp_root_markers = { "package.json", "makefile", "build.bat", "build.sh" }
 vim.g.ctrlp_clear_cache_on_exit = 1
 if vim.fn.executable("rg") == 1 then
     vim.o.grepprg = "rg --vimgrep --no-heading --smart-case --color=never"
@@ -539,7 +567,4 @@ require("oil").setup({
     },
 })
 
----------------------------------------------------------------------------
--- Source colorscheme (kept as VimScript)
----------------------------------------------------------------------------
 vim.cmd("source " .. vim.fn.stdpath("config") .. "/dreamshade_theme.vim")
