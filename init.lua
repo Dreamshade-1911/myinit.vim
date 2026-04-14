@@ -12,19 +12,6 @@ elseif vim.fn.argc() == 1 then
     vim.cmd("tcd %:h")
 end
 
--- Acrylic transparency helper (Windows only)
--- @Note: I think Neovide now supports window blur so this isn't needed? They didn't document anything.
--- local function run_acrylic(win_name)
---     if vim.fn.has("win32") == 1 and vim.fn.executable("acrylic") == 1 then
---         vim.api.nvim_create_autocmd("UIEnter", {
---             once = true,
---             callback = function()
---                 vim.fn.system("acrylic " .. win_name)
---             end,
---         })
---     end
--- end
-
 -- GUI-specific settings
 if vim.g.neovide then
     vim.g.neovide_padding_left = 5
@@ -48,7 +35,6 @@ if vim.g.neovide then
     vim.g.neovide_opacity = 0.8
     vim.g.neovide_title_background_color = "#061214"
     vim.g.neovide_title_text_color = "#DBCAA4"
-    -- run_acrylic("Neovide")
 elseif vim.g.nvui then
     vim.cmd([[
         NvuiCursorHideWhileTyping 1
