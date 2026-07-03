@@ -3,10 +3,16 @@ vim.o.termguicolors = true
 vim.cmd("filetype plugin on")
 vim.cmd("syntax enable")
 
--- If the argument passed is a folder, set it as cwd.
+-- If the argument passed is a folder, set it as cwd and open it through oil.
 if vim.fn.argc() == 1 and vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
     vim.cmd("cd " .. vim.fn.argv(0))
     vim.cmd("tcd " .. vim.fn.argv(0))
+    vim.api.nvim_create_autocmd("VimEnter", {
+        once = true,
+        callback = function()
+            vim.schedule(function() vim.cmd("Oil .") end)
+        end,
+    })
 elseif vim.fn.argc() == 1 then
     vim.cmd("cd %:h")
     vim.cmd("tcd %:h")
@@ -53,7 +59,7 @@ elseif vim.g.nvui then
 end
 
 -- General options
-vim.o.guifont = "FiraMono Nerd Font:h11"
+vim.o.guifont = "FiraMono Nerd Font:h12"
 vim.o.guicursor = "i-c-ci-sm-o:hor50,n-r-v-ve-cr-ve:block,a:-blinkwait500-blinkon800-blinkoff300"
 vim.o.cursorline = true
 vim.o.tabstop = 4
@@ -227,6 +233,22 @@ map("n", "<Leader>J", "<C-w>J")
 map("n", "<Leader>K", "<C-w>K")
 map("n", "<Leader>L", "<C-w>L")
 
+-- Paste and re-indent keymaps
+local function paste(cmd)
+  return function()
+    local reg = vim.v.register
+    local count = vim.v.count1
+    -- Do the actual paste, honoring register + count (e.g. "a3p still works)
+    vim.cmd('normal! "' .. reg .. count .. cmd)
+    -- Re-indent only linewise pastes
+    if vim.fn.getregtype(reg):sub(1, 1) == 'V' then
+      vim.cmd('normal! `[=`]')
+    end
+  end
+end
+vim.keymap.set('n', 'p', paste('p'), { desc = 'Paste below + auto-indent' })
+vim.keymap.set('n', 'P', paste('P'), { desc = 'Paste above + auto-indent' })
+
 -- Show SynGroup under cursor
 vim.api.nvim_create_user_command("SynGroup", function()
     local s = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
@@ -262,7 +284,6 @@ if vim.fn.executable("rg") == 1 then
     vim.o.grepprg = "rg --vimgrep --no-heading --smart-case --color=never"
     vim.opt.grepformat = "%f:%l:%c:%m"
     vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
-    vim.g.ctrlp_use_caching = 0
 end
 vim.g.vue_pre_processors = "detect_on_enter"
 vim.g.netrw_cygwin = 0
@@ -393,109 +414,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
-    spec = {
-        -- Non-lazy first
-        { "arcticicestudio/nord-vim", lazy = false, priority = 1000 },
-        { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" }, lazy = false },
-        { "tpope/vim-fugitive", lazy = false },
-        { "junegunn/vim-easy-align", lazy = false },
-        { "airblade/vim-gitgutter", lazy = false },
-        { "djoshea/vim-autoread", lazy = false },
-        { "lukas-reineke/indent-blankline.nvim", main = "ibl", lazy = false },
-        { "ctrlpvim/ctrlp.vim", lazy = false },
-        { "neoclide/coc.nvim", lazy = false, build = "npm ci" },
-        { "shortcuts/no-neck-pain.nvim", lazy = false },
-        { "tpope/vim-sleuth", lazy = false },
-        { "https://codeberg.org/andyg/leap.nvim", lazy = false },
-        {
-          'stevearc/oil.nvim',
-          ---@module 'oil'
-          ---@type oil.SetupOpts
-          opts = {},
-          -- Optional dependencies
-          dependencies = { { "nvim-mini/mini.icons", opts = {} } },
-          -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
-          -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
-          lazy = false,
-        },
-
-        -- Lazy plugins
-        { "tpope/vim-abolish" },
-        { "tpope/vim-commentary" },
-        { "tpope/vim-dispatch" },
-        { "rmagatti/auto-session" },
-        { "mbbill/undotree" },
-        { "editorconfig/editorconfig-vim" },
-        { "Tetralux/odin.vim" },
-        { "tikhomirov/vim-glsl" },
-        { "rluba/jai.vim" },
-        { "nvim-lua/plenary.nvim" },
-        { "MunifTanjim/nui.nvim" },
-        -- This garbage is not working.
-        -- { "kokusenz/delta.lua" },
-        -- { "kokusenz/deltaview.nvim" },
-    },
-    install = { colorscheme = { "habamax" } },
-    checker = { enabled = true, notify = false },
-})
-
-vim.opt.shadafile = "NONE"
-
----------------------------------------------------------------------------
--- Plugin configs
----------------------------------------------------------------------------
-require("auto-session").setup({
-    enabled = true,
-    root_dir = vim.fn.stdpath("data") .. "/sessions/",
-    auto_save = true,
-    auto_restore = true,
-    auto_create = false,
-    suppressed_dirs = nil,
-    allowed_dirs = nil,
-    auto_restore_last_session = false,
-    use_git_branch = false,
-    lazy_support = false,
-    bypass_save_filetypes = nil,
-    close_unsupported_windows = true,
-    args_allow_single_directory = true,
-    args_allow_files_auto_save = false,
-    continue_restore_on_error = true,
-    show_auto_restore_notif = false,
-    cwd_change_handling = true,
-    lsp_stop_on_restore = false,
-    log_level = "error",
-    session_lens = {
-        load_on_setup = false,
-        theme_conf = {},
-        previewer = false,
-        mappings = {},
-        session_control = {
-            control_dir = vim.fn.stdpath("data") .. "/auto_session/",
-            control_filename = "session_control.json",
-        },
-        post_restore_cmds = { "NoNeckPain" },
-    },
-})
-
-vim.keymap.set({'n', 'x', 'o'}, 's', '<Plug>(leap)')
-vim.keymap.set('n',             'S', '<Plug>(leap-from-window)')
-
-require("ibl").setup({
-    indent = { char = "▏" },
-})
-
-require("no-neck-pain").setup({
-    width = 150,
-    autocmds = {
-        enableOnVimEnter = true,
-        enableOnTabEnter = true,
-    },
-    integrations = {
-        undotree = { position = "left" },
-    },
-})
-
+-- Colors for lualine.
 local colors = {
     darkg     = "#091B1F",
     lightg    = "#132C30",
@@ -504,7 +423,7 @@ local colors = {
     green     = "#27CCAE",
     lightblue = "#82DDD9",
 }
-local theme = {
+local lualine_theme = {
     normal = {
         a = { bg = colors.vibrantg, fg = colors.black },
         b = { bg = colors.lightg, fg = colors.lightblue },
@@ -516,41 +435,114 @@ local theme = {
         c = { bg = colors.darkg, fg = colors.green },
     },
 }
-require("lualine").setup({
-    icons_enabled = false,
-    options = {
-        theme = theme,
-        component_separators = "|",
-        section_separators = { left = "", right = "" },
+
+require("lazy").setup({
+    spec = {
+        -- Non-lazy first
+        { "arcticicestudio/nord-vim", lazy = false, priority = 1000 },
+        { "tpope/vim-fugitive", lazy = false },
+        { "junegunn/vim-easy-align", lazy = false },
+        { "airblade/vim-gitgutter", lazy = false },
+        { "djoshea/vim-autoread", lazy = false },
+        {
+            "lukas-reineke/indent-blankline.nvim",
+            main = "ibl",
+            lazy = false,
+            opts = { indent = { char = "▏" } },
+        },
+        { "ctrlpvim/ctrlp.vim", lazy = false },
+        { "neoclide/coc.nvim", lazy = false, build = "npm ci" },
+        {
+            "shortcuts/no-neck-pain.nvim",
+            lazy = false,
+            opts = {
+                width = 150,
+                autocmds = {
+                    enableOnVimEnter = true,
+                    enableOnTabEnter = true,
+                },
+                integrations = {
+                    undotree = { position = "left" },
+                },
+            },
+        },
+        { "tpope/vim-sleuth", lazy = false },
+        { "https://codeberg.org/andyg/leap.nvim", lazy = false },
+        { "OXY2DEV/markview.nvim", lazy = false },
+        {
+            'stevearc/oil.nvim',
+            -- Optional dependencies
+            dependencies = { { "nvim-mini/mini.icons", opts = {} } },
+            -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+            -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+            lazy = false,
+            ---@module 'oil'
+            ---@type oil.SetupOpts
+            opts = {
+                default_file_explorer = true,
+                view_options = {
+                    show_hidden = true,
+                },
+                keymaps = {
+                    ["<C-p>"] = false,
+                    ["<Leader>p"] = "actions.preview",
+                },
+            },
+        },
+        {
+            "nvim-lualine/lualine.nvim",
+            dependencies = { "nvim-tree/nvim-web-devicons" },
+            lazy = false,
+            opts = {
+                icons_enabled = false,
+                options = {
+                    theme = lualine_theme,
+                    component_separators = "|",
+                    section_separators = { left = "", right = "" },
+                },
+                sections = {
+                    lualine_a = { { "mode", separator = { left = "" }, right_padding = 2 } },
+                    lualine_b = { "branch" },
+                    lualine_c = { { "filename", path = 1 } },
+                    lualine_x = { "fileformat" },
+                    lualine_y = { "g:coc_status", "filetype", "progress" },
+                    lualine_z = { { "location", separator = { right = "" }, left_padding = 2 } },
+                },
+                inactive_sections = {
+                    lualine_a = { { "filename", path = 1 } },
+                    lualine_b = {},
+                    lualine_c = {},
+                    lualine_x = {},
+                    lualine_y = {},
+                    lualine_z = { "location" },
+                },
+                tabline = {},
+                extensions = {},
+            },
+        },
+
+        -- Lazy plugins
+        { "tpope/vim-abolish" },
+        { "tpope/vim-commentary" },
+        { "tpope/vim-dispatch" },
+        { "mbbill/undotree" },
+        { "editorconfig/editorconfig-vim" },
+        { "Tetralux/odin.vim" },
+        { "tikhomirov/vim-glsl" },
+        { "rluba/jai.vim" },
+        { "nvim-lua/plenary.nvim" },
+        { "MunifTanjim/nui.nvim" },
     },
-    sections = {
-        lualine_a = { { "mode", separator = { left = "" }, right_padding = 2 } },
-        lualine_b = { "branch" },
-        lualine_c = { { "filename", path = 1 } },
-        lualine_x = { "fileformat" },
-        lualine_y = { "g:coc_status", "filetype", "progress" },
-        lualine_z = { { "location", separator = { right = "" }, left_padding = 2 } },
-    },
-    inactive_sections = {
-        lualine_a = { { "filename", path = 1 } },
-        lualine_b = {},
-        lualine_c = {},
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = { "location" },
-    },
-    tabline = {},
-    extensions = {},
+    install = { colorscheme = { "habamax" } },
+    checker = { enabled = true, notify = false },
 })
 
-require("oil").setup({
-    view_options = {
-        show_hidden = true,
-    },
-    keymaps = {
-        ["<C-p>"] = false,
-        ["<Leader>p"] = "actions.preview",
-    },
-})
+vim.opt.shadafile = "NONE"
+
+---------------------------------------------------------------------------
+-- Plugin configs
+---------------------------------------------------------------------------
+vim.keymap.set({'n', 'x', 'o'}, 's', '<Plug>(leap)')
+vim.keymap.set('n',             'S', '<Plug>(leap-from-window)')
 
 vim.cmd("source " .. vim.fn.stdpath("config") .. "/dreamshade_theme.vim")
