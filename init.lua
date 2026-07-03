@@ -228,10 +228,21 @@ map("n", "<Leader>k", "<C-w>k")
 map("n", "<Leader>l", "<C-w>l")
 
 -- Moving windows
-map("n", "<Leader>H", "<C-w>H")
-map("n", "<Leader>J", "<C-w>J")
-map("n", "<Leader>K", "<C-w>K")
-map("n", "<Leader>L", "<C-w>L")
+local function move_window(dir)
+    return function()
+        local nnp = require("no-neck-pain")
+        local state = require("no-neck-pain.state")
+        local was_on = state and state.enabled
+
+        if was_on then nnp.disable() end
+        vim.cmd("wincmd " .. dir)
+        if was_on then nnp.enable() end
+    end
+end
+map("n", "<Leader>H", move_window("H"))
+map("n", "<Leader>J", move_window("J"))
+map("n", "<Leader>K", move_window("K"))
+map("n", "<Leader>L", move_window("L"))
 
 -- Paste and re-indent keymaps
 local function paste(cmd)
@@ -459,7 +470,6 @@ require("lazy").setup({
                 width = 150,
                 autocmds = {
                     enableOnVimEnter = true,
-                    enableOnTabEnter = true,
                 },
                 integrations = {
                     undotree = { position = "left" },
