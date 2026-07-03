@@ -103,6 +103,8 @@ vim.opt.wildignore:append({
     ".nyc_output", "obj", "Packages", "ProjectSettings", "UserSettings", "Library", "Logs",
     ".ttf"
 })
+-- Windows' default shellpipe ('2>&1| tee') is fragile; native redirection is reliable.
+if vim.fn.has("win32") == 1 then vim.o.shellpipe = ">%s 2>&1" end
 
 -- Abbreviate "silent grep" as "grep"
 vim.cmd([[cnoreabbrev grep silent grep]])
@@ -115,6 +117,22 @@ vim.api.nvim_create_autocmd("QuickFixCmdPost", {
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
     pattern = "l*",
     command = "botright lwindow 18",
+})
+
+-- vim-dispatch's async :Make opens the quickfix on completion but (unlike built-in :make)
+-- doesn't jump to the first error. Do it ourselves, but only when there's a real error, and
+-- deferred so it runs after dispatch's call stack unwinds (jumping mid-event would clobber the
+-- buffer-local makeprg/errorformat dispatch restores afterwards).
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+    pattern = "make",
+    callback = function()
+        for _, e in ipairs(vim.fn.getqflist()) do
+            if e.valid == 1 then
+                vim.schedule(function() pcall(vim.cmd, "cfirst") end)
+                return
+            end
+        end
+    end,
 })
 
 -- Enable comments in JSON files
@@ -196,8 +214,21 @@ map("n", "<F2>", "@:<CR>", { silent = true })
 map({ "n", "i", "v", "t" }, "<F5>", "<Cmd>NoNeckPain<CR>", { silent = true })
 map({ "n", "i" }, "<F9>", "<Cmd>cprev<CR>", { silent = true })
 map({ "n", "i" }, "<F10>", "<Cmd>cnext<CR>", { silent = true })
-map({ "n", "i" }, "<F11>", "<Cmd>make<CR>", { silent = true })
-map({ "n", "i" }, "<F12>", "<Cmd>make<CR>", { silent = true })
+
+-- Run my build scripts if present, otherwise fallback to default make.
+local function run_build(cmd)
+    local win = vim.fn.has("win32") == 1
+    local script = win and "build.bat" or "build.sh"
+    local suffix = cmd ~= "" and " " .. cmd or ""
+    local saved = vim.o.makeprg
+    if vim.fn.filereadable(script) == 1 then
+        vim.o.makeprg = win and ".\\build.bat" or "./build.sh"
+    end
+    vim.cmd("Make" .. suffix)
+    vim.o.makeprg = saved
+end
+map({ "n", "i" }, "<F11>", function() run_build("") end, { silent = true })
+map({ "n", "i" }, "<F12>", function() run_build("dev") end, { silent = true })
 
 -- Leader keybinds
 map("n", "<Space>", "<Nop>")
@@ -279,7 +310,6 @@ map("n", "<C-Down>", function()
 end, { silent = true })
 
 -- Commands
-vim.api.nvim_create_user_command("Cdhere", "tcd %:p:h", {})
 vim.api.nvim_create_user_command("Retab", "set expandtab | %retab!", {})
 
 -- General plugin settings

@@ -3,7 +3,7 @@
         "odin": {
             "command": "ols",
             "filetypes": ["odin"],
-            "rootPatterns": ["ols.json", "makefile", ".git"]
+            "rootPatterns": ["ols.json", "build.bat", "build.sh", "makefile", ".git"]
         }
     },
     "diagnostic.enable": true,
