@@ -232,17 +232,17 @@ map({ "n", "i", "v", "t" }, "<F5>", "<Cmd>NoNeckPain<CR>", { silent = true })
 map({ "n", "i" }, "<F9>", "<Cmd>cprev<CR>", { silent = true })
 map({ "n", "i" }, "<F10>", "<Cmd>cnext<CR>", { silent = true })
 
--- Run my build scripts if present, otherwise fallback to default make.
-local function run_build(cmd)
+-- Use build script as makeprg if present in the cwd, otherwise fallback to default make.
+do
     local win = vim.fn.has("win32") == 1
     local script = win and "build.bat" or "build.sh"
-    local suffix = cmd ~= "" and " " .. cmd or ""
-    local saved = vim.o.makeprg
     if vim.fn.filereadable(script) == 1 then
         vim.o.makeprg = win and ".\\build.bat" or "./build.sh"
     end
+end
+local function run_build(cmd)
+    local suffix = cmd ~= "" and " " .. cmd or ""
     vim.cmd("Make" .. suffix)
-    vim.o.makeprg = saved
 end
 map({ "n", "i" }, "<F11>", function() run_build("") end, { silent = true })
 map({ "n", "i" }, "<F12>", function() run_build("dev") end, { silent = true })
