@@ -97,7 +97,7 @@ vim.o.splitbelow = true
 vim.opt.fillchars:append({ vert = " ", eob = " " })
 vim.o.sessionoptions = "blank,curdir,folds,help,tabpages,resize,winsize,winpos,terminal"
 vim.opt.wildignore:append({
-    "tmp", ".tmp", "*.swp", "*.zip", "*.exe", "*.obj", ".vscode", ".vs", ".git",
+    "data", "tmp", ".tmp", "*.swp", "*.zip", "*.exe", "*.obj", ".vscode", ".vs", ".git",
     "node_modules", "bin", "build", "dist", "*.png", "*.jpeg", "*.jpg", "*.svg",
     "*.bmp", "package-lock.json", "yarn.lock", "*.pdb", "*.map", "third_party", "deps",
     ".nyc_output", "obj", "Packages", "ProjectSettings", "UserSettings", "Library", "Logs",
@@ -106,8 +106,9 @@ vim.opt.wildignore:append({
 -- Windows' default shellpipe ('2>&1| tee') is fragile; native redirection is reliable.
 if vim.fn.has("win32") == 1 then vim.o.shellpipe = ">%s 2>&1" end
 
--- Abbreviate "silent grep" as "grep"
 vim.cmd([[cnoreabbrev grep silent grep]])
+vim.cmd([[cnoreabbrev S Subvert]])
+vim.cmd([[cnoreabbrev %S %Subvert]])
 
 -- Open QuickFix window on grepping
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
@@ -139,6 +140,22 @@ vim.api.nvim_create_autocmd("QuickFixCmdPost", {
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "json",
     command = [[syntax match Comment +\/\/.\+$+]],
+})
+
+vim.filetype.add({
+    extension = {
+        hlsl = "hlsl", hlsli = "hlsl",
+        fx = "hlsl", fxh = "hlsl",
+        cginc = "hlsl", compute = "hlsl",
+    },
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "hlsl",
+    callback = function()
+        vim.bo.cindent = true
+        vim.bo.commentstring = "// %s"
+    end,
 })
 
 -- Odin error format
@@ -358,83 +375,9 @@ vim.g.easy_align_delimiters = {
     d = { pattern = "-\\=\\d\\+\\(\\.\\d\\+\\)\\=,\\=" },
 }
 
--- Setup CoC
-vim.g.coc_config_home = vim.fn.stdpath("config")
-vim.g.coc_global_extensions = {
-    "coc-vimlsp", "coc-go", "coc-git", "coc-glslx",
-    "coc-html-css-support", "coc-html", "coc-css",
-    "coc-yaml", "coc-tsserver", "@yaegassy/coc-volar",
-}
-
-map("i", "<S-TAB>", function()
-    if vim.fn["coc#pum#visible"]() == 1 then
-        return vim.fn["coc#pum#confirm"]()
-    else
-        return vim.fn["coc#refresh"]()
-    end
-end, { silent = true, expr = true })
-
-map("n", "K", function()
-    if vim.fn.CocAction("hasProvider", "hover") then
-        vim.fn.CocActionAsync("doHover")
-    else
-        vim.api.nvim_feedkeys("K", "in", false)
-    end
-end, { silent = true })
-
--- GoTo code navigation
-map("n", "gd", "<Plug>(coc-definition)", { silent = true })
-map("n", "gD", "<Cmd>vsp<CR><Plug>(coc-definition)", { silent = true })
-map("n", "gy", "<Plug>(coc-type-definition)", { silent = true })
-map("n", "gi", "<Plug>(coc-implementation)", { silent = true })
-map("n", "gr", "<Plug>(coc-references)", { silent = true })
-
--- Symbol renaming
-map("n", "<leader>r", "<Plug>(coc-rename)")
-
--- Formatting selected code
-map({ "x", "n" }, "<F3>", "<Plug>(coc-format-selected)")
-
--- Function and class text objects
-map({ "x", "o" }, "if", "<Plug>(coc-funcobj-i)")
-map({ "x", "o" }, "af", "<Plug>(coc-funcobj-a)")
-map({ "x", "o" }, "ic", "<Plug>(coc-classobj-i)")
-map({ "x", "o" }, "ac", "<Plug>(coc-classobj-a)")
-
--- Scroll float windows/popups
-map({ "n", "v" }, "<C-f>", function()
-    if vim.fn["coc#float#has_scroll"]() == 1 then
-        return vim.fn["coc#float#scroll"](1)
-    else
-        return "<C-f>"
-    end
-end, { silent = true, nowait = true, expr = true })
-map({ "n", "v" }, "<C-b>", function()
-    if vim.fn["coc#float#has_scroll"]() == 1 then
-        return vim.fn["coc#float#scroll"](0)
-    else
-        return "<C-b>"
-    end
-end, { silent = true, nowait = true, expr = true })
-map("i", "<C-f>", function()
-    if vim.fn["coc#float#has_scroll"]() == 1 then
-        return "<C-r>=coc#float#scroll(1)<CR>"
-    else
-        return "<Right>"
-    end
-end, { silent = true, nowait = true, expr = true })
-map("i", "<C-b>", function()
-    if vim.fn["coc#float#has_scroll"]() == 1 then
-        return "<C-r>=coc#float#scroll(0)<CR>"
-    else
-        return "<Left>"
-    end
-end, { silent = true, nowait = true, expr = true })
-
--- Format command
-vim.api.nvim_create_user_command("Format", function()
-    vim.fn.CocAction("format")
-end, {})
+-- LSP keymaps
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, { silent = true, desc = "LSP goto definition" })
+vim.keymap.set("n", "K", vim.lsp.buf.hover, { silent = true, desc = "LSP hover" })
 
 ---------------------------------------------------------------------------
 -- Bootstrap lazy.nvim
@@ -480,7 +423,6 @@ local lualine_theme = {
 require("lazy").setup({
     spec = {
         -- Non-lazy first
-        { "arcticicestudio/nord-vim", lazy = false, priority = 1000 },
         { "tpope/vim-fugitive", lazy = false },
         { "junegunn/vim-easy-align", lazy = false },
         { "airblade/vim-gitgutter", lazy = false },
@@ -492,7 +434,69 @@ require("lazy").setup({
             opts = { indent = { char = "▏" } },
         },
         { "ctrlpvim/ctrlp.vim", lazy = false },
-        { "neoclide/coc.nvim", lazy = false, build = "npm ci" },
+        {
+            "neovim/nvim-lspconfig",
+            lazy = false,
+            dependencies = {
+                "mason-org/mason.nvim",
+                "mason-org/mason-lspconfig.nvim",
+                "saghen/blink.cmp",
+            },
+            config = function()
+                require("mason").setup()
+                require("mason-lspconfig").setup({
+                    ensure_installed = {
+                        "ts_ls", "vue_ls", "gopls", "html",
+                        "cssls", "yamlls", "vimls",
+                    },
+                })
+
+                vim.lsp.config("*", {
+                    capabilities = require("blink.cmp").get_lsp_capabilities(),
+                })
+
+                vim.lsp.config("ols", {
+                    cmd = { "ols" },
+                    filetypes = { "odin" },
+                    root_markers = { "ols.json", "build.bat", "build.sh", "makefile", ".git" },
+                })
+                vim.lsp.enable("ols")
+
+                local vue_plugin = vim.fn.expand(
+                    "$MASON/packages/vue-language-server/node_modules/@vue/language-server")
+                vim.lsp.config("ts_ls", {
+                    filetypes = { "javascript", "typescript", "vue" },
+                    init_options = {
+                        plugins = {
+                            { name = "@vue/typescript-plugin", location = vue_plugin, languages = { "vue" } },
+                        },
+                    },
+                })
+            end,
+        },
+        {
+            "saghen/blink.cmp",
+            version = "1.*",
+            lazy = false,
+            opts = {
+                keymap = {
+                    preset = "none",
+                    ["<S-Tab>"] = { "select_and_accept", "show", "fallback" },
+                    ["<Up>"]    = { "select_prev", "fallback" },
+                    ["<Down>"]  = { "select_next", "fallback" },
+                    ["<C-e>"]   = { "hide", "fallback" },
+                },
+                completion = {
+                    menu = { auto_show = true },
+                    documentation = { auto_show = false },
+                    accept = { auto_brackets = { enabled = false } },
+                },
+                signature = {
+                    enabled = true,
+                    window = { show_documentation = true },
+                },
+            },
+        },
         {
             "shortcuts/no-neck-pain.nvim",
             lazy = false,
@@ -545,7 +549,7 @@ require("lazy").setup({
                     lualine_b = { "branch" },
                     lualine_c = { { "filename", path = 1 } },
                     lualine_x = { "fileformat" },
-                    lualine_y = { "g:coc_status", "filetype", "progress" },
+                    lualine_y = { "filetype", "progress" },
                     lualine_z = { { "location", separator = { right = "" }, left_padding = 2 } },
                 },
                 inactive_sections = {
@@ -569,6 +573,7 @@ require("lazy").setup({
         { "editorconfig/editorconfig-vim" },
         { "Tetralux/odin.vim" },
         { "tikhomirov/vim-glsl" },
+        { "beyondmarc/hlsl.vim", ft = "hlsl" },
         { "rluba/jai.vim" },
         { "nvim-lua/plenary.nvim" },
         { "MunifTanjim/nui.nvim" },
