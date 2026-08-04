@@ -6,7 +6,8 @@
 "   dark_background  #061214   floats / GUI Normal bg
 "   background       #091B1F   panels (statusline, pmenu, tabfill)
 "   light_background #112D32   cursorline / folds / column
-"   constant         #7EE6E1   numbers / specials (cyan)
+"   literal          #7EE6E1   numbers / specials (cyan)
+"   constant         #D8DEE9   constant identifiers (grey)
 "   string           #21C2A5   strings (teal)
 "   type             #3EC984   types (green)
 "   comment          #67B32E   comments (olive)
@@ -53,8 +54,8 @@ hi Conceal      guifg=#3E5A5E
 hi Directory    guifg=#3EC984
 hi Title        guifg=#3EC984 gui=bold
 hi MatchParen   guifg=#101010 guibg=#3EC984
-hi IblIndent    guifg=#173238
-hi IblScope     guifg=#3E5A5E
+hi IblIndent    guifg=#174534
+hi IblScope     guifg=#3EC984
 
 " ----- Statusline / Tabline -------------------------------------------------
 hi StatusLine   guifg=#DBCAA4 guibg=#091B1F
@@ -162,6 +163,9 @@ hi SpecialComment guifg=#67B32E gui=bold
 hi Debug        guifg=#7EE6E1
 hi Underlined   guifg=#7EE6E1 gui=underline
 hi Ignore       guifg=#091B1F
+
+" ----- Treesitter / LSP semantic tokens -------------------------------------
+hi! link @variable Identifier
 
 " ----- Filetype-specific tweaks ---------------------------------------------
 hi vimMapRhs                     guifg=#DBCAA4

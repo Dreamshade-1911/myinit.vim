@@ -83,7 +83,7 @@ vim.o.clipboard = "unnamed,unnamedplus"
 vim.o.hidden = true
 vim.o.backup = false
 vim.o.writebackup = false
-vim.o.updatetime = 500
+vim.o.updatetime = 100
 vim.opt.shortmess:append("c")
 vim.o.signcolumn = "no"
 vim.o.ignorecase = true
@@ -240,12 +240,13 @@ do
         vim.o.makeprg = win and ".\\build.bat" or "./build.sh"
     end
 end
-local function run_build(cmd)
-    local suffix = cmd ~= "" and " " .. cmd or ""
-    vim.cmd("Make" .. suffix)
-end
-map({ "n", "i" }, "<F11>", function() run_build("") end, { silent = true })
-map({ "n", "i" }, "<F12>", function() run_build("dev") end, { silent = true })
+
+-- :MakeSave [args] builds with dispatch and remembers the args, so F12 can replay them.
+vim.g.last_make_args = ""
+vim.cmd([[command! -bang -nargs=* -complete=customlist,dispatch#make_complete MakeSave let g:last_make_args = <q-args> | execute 'Make<bang> ' . <q-args>]])
+-- F11 runs a plain :Make; F12 replays :Make with the args last given to :MakeSave.
+map({ "n", "i" }, "<F11>", "<Cmd>Make<CR>", { silent = true })
+map({ "n", "i" }, "<F12>", function() vim.cmd("Make " .. vim.g.last_make_args) end, { silent = true })
 
 -- Leader keybinds
 map("n", "<Space>", "<Nop>")
@@ -261,7 +262,7 @@ map("n", "<Leader>0", '"0p')
 map("n", "<Leader>)", '"0P')
 map("n", "<Leader>w", ":w<CR>", { silent = true })
 map("n", "<Leader>q", ":q<CR>", { silent = true })
-map("n", "<Leader>u", ":UndotreeToggle<CR>", { silent = true })
+map("n", "<Leader>r", vim.lsp.buf.rename, { silent = true, desc = "LSP rename symbol" })
 
 map("n", "<Leader>gp", "<Plug>(GitGutterPreviewHunk)")
 map("n", "<Leader>gu", "<Plug>(GitGutterUndoHunk)")
@@ -472,6 +473,15 @@ require("lazy").setup({
                         },
                     },
                 })
+
+                vim.diagnostic.config({
+                    float = { source = true, border = "rounded" },
+                })
+                vim.api.nvim_create_autocmd("CursorHold", {
+                    callback = function()
+                        vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
+                    end,
+                })
             end,
         },
         {
@@ -504,9 +514,6 @@ require("lazy").setup({
                 width = 150,
                 autocmds = {
                     enableOnVimEnter = true,
-                },
-                integrations = {
-                    undotree = { position = "left" },
                 },
             },
         },
@@ -569,7 +576,6 @@ require("lazy").setup({
         { "tpope/vim-abolish" },
         { "tpope/vim-commentary" },
         { "tpope/vim-dispatch" },
-        { "mbbill/undotree" },
         { "editorconfig/editorconfig-vim" },
         { "Tetralux/odin.vim" },
         { "tikhomirov/vim-glsl" },
