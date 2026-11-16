@@ -13,7 +13,7 @@ function! SetCustomSyntax()
     syn keyword NoCheckin nocheckin containedin=ALL
     syn keyword Statement defer
     syn keyword cType u8 u16 u32 u64 s8 s16 s32 s64 bool32 byte f32 f64 vec2 vec3 vec4 ivec2 ivec3 ivec4 mat4
-    syn keyword odinDataType f32 f64 f32le f64le f32be f64be u8 u16 u32 u64 u128 u8le u16le u32le u64le u128le u8be u16be u32be u64be u128be
+    syn keyword odinDataType f16 f32 f64 f16le f16be f32le f64le f32be f64be u8 u16 u32 u64 u128 u8le u16le u32le u64le u128le u8be u16be u32be u64be u128be
     syn region odinAttribute start="@(" end=")" contains=odinString
     syn match odinAttribute /@\w\+/
 endfunction

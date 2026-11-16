@@ -110,9 +110,9 @@ vim.cmd([[cnoreabbrev grep silent grep]])
 vim.cmd([[cnoreabbrev S Subvert]])
 vim.cmd([[cnoreabbrev %S %Subvert]])
 
--- Open QuickFix window on grepping
+-- Open QuickFix window on grepping.
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
-    pattern = "[^l]*",
+    pattern = { "grep", "grepadd", "vimgrep", "vimgrepadd", "helpgrep" },
     command = "botright cwindow 18",
 })
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
@@ -188,6 +188,7 @@ end
 
 -- General remaps
 local map = vim.keymap.set
+map({ "i", "n", "v" }, "<C-;>", "<ESC>")
 map("n", ")", "^")
 map("v", ")", "^")
 map("i", "<C-u>", "<ESC>viwUea")
@@ -210,10 +211,10 @@ map("n", "<PageUp>", "<C-u>")
 map("i", "<PageUp>", "<Esc><C-u>")
 map("v", "<PageUp>", "<C-u>")
 map("t", "<PageUp>", "<C-u>")
-map("n", "<C-j>", "ddp")
-map("i", "<C-j>", "<Esc>ddpi")
-map("n", "<C-k>", "ddkP")
-map("i", "<C-k>", "<Esc>ddkPi")
+map("n", "<C-j>", "ddp==")
+map("i", "<C-j>", "<Esc>ddp==i")
+map("n", "<C-k>", "ddkP==")
+map("i", "<C-k>", "<Esc>ddkP==i")
 
 -- Toggle QuickFix
 local function toggle_quickfix()
@@ -240,6 +241,8 @@ do
         vim.o.makeprg = win and ".\\build.bat" or "./build.sh"
     end
 end
+
+vim.g.dispatch_quickfix_height = 18
 
 -- :MakeSave [args] builds with dispatch and remembers the args, so F12 can replay them.
 vim.g.last_make_args = ""
